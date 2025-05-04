@@ -1,0 +1,31 @@
+services:
+  app-service:
+    build:
+      context: ../app-service
+    volumes:
+      - ../app-service:/app
+    environment:
+      - FLASK_ENV=development
+      - DEBUG=True
+    ports:
+      - "5000:5000"
+
+  app-frontend:
+    build:
+      context: ../app-frontend
+    volumes:
+      - ../app-frontend:/app
+    environment:
+      - FLASK_ENV=development
+      - APP_SERVICE_URL=http://app-service:5000
+    ports:
+      - "3000:3000"
+
+  model-service:
+    build:
+      context: ../model-service
+    volumes:
+      - ../model-service:/app
+    environment:
+      - FLASK_ENV=development
+      - MODEL_SERVICE_URI=foo

@@ -1,0 +1,36 @@
+services:
+  app-service:
+    image: ghcr.io/remla25-team15/app-service
+    container_name: app-service
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - APP_NAME=app-service
+      - PORT=5000
+      - HOST=0.0.0.0
+      - MODEL_SERVICE_URL=http://model-service:5001
+    restart: unless-stopped
+
+  app-frontend:
+    image: ghcr.io/remla25-team15/app-frontend
+    container_name: app-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - FLASK_ENV=production
+      - APP_SERVICE_URL=http://app-service:5000
+    restart: unless-stopped
+
+  model-service:
+    image: ghcr.io/remla25-team15/model-service
+    container_name: model-service
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+      - MODEL_RESOURCE_URI=foo
+    restart: unless-stopped
+networks:
+  default:
+    name: remla-network
