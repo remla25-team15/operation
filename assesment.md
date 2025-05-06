@@ -12,7 +12,7 @@
 
 ## Pull requests:
 Liwia: 
-created: https://github.com/remla25-team15/model-service/pull/1
-approved: https://github.com/remla25-team15/app-frontend/pull/2
+- created: https://github.com/remla25-team15/model-service/pull/1
+- approved: https://github.com/remla25-team15/app-frontend/pull/2
 
 
