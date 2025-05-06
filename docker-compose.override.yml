@@ -2,30 +2,40 @@ services:
   app-service:
     build:
       context: ../app-service
-    volumes:
-      - ../app-service:/app
     environment:
       - FLASK_ENV=development
       - DEBUG=True
+    volumes:
+      - ../app-service:/app
     ports:
       - "5000:5000"
 
   app-frontend:
     build:
       context: ../app-frontend
-    volumes:
-      - ../app-frontend:/app
     environment:
       - FLASK_ENV=development
       - APP_SERVICE_URL=http://app-service:5000
+      - DEBUG=True
+    volumes:
+      - ../app-frontend:/app
     ports:
       - "3000:3000"
 
   model-service:
     build:
       context: ../model-service
-    volumes:
-      - ../model-service:/app
     environment:
       - FLASK_ENV=development
-      - MODEL_SERVICE_URI=foo
+      - MODEL_RESOURCE_URI=https://drive.google.com/file/d/1F6i--L50pVm7p0dcApGIhepC7CovC3La/view?usp=sharing
+      - CV_URI=https://drive.google.com/file/d/14bCZu2mMU_90ngZLDXyQh9fQCbqDW0E-/view?usp=sharing
+      - PORT=5001
+      - DEBUG=True
+    volumes:
+      - ../model-service:/app
+      - model-cache:/models
+    ports:
+      - "5001:5001"
+
+volumes:
+  model-cache:
