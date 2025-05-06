@@ -20,6 +20,10 @@ Created PR: https://github.com/remla25-team15/app-frontend/pull/4 \
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/7 \
 Approved PR: https://github.com/remla25-team15/lib-version/pull/2 \
 
+Created Issue: https://github.com/remla25-team15/app-frontend/issues/6#event-17539543009 \
+Created Issue: https://github.com/remla25-team15/app-frontend/issues/5#issuecomment-2855178564 \
+Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17540932886 \
+
 -- Liwia: --
 
 - created: https://github.com/remla25-team15/model-service/pull/1
