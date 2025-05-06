@@ -10,4 +10,9 @@
 - tags for review are : a1
 - all points from the rubric are done. e.g. all tasks can be reviewed
 
+## Pull requests:
+Liwia: 
+created: https://github.com/remla25-team15/model-service/pull/1
+approved: https://github.com/remla25-team15/app-frontend/pull/2
+
 
