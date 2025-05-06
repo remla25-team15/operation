@@ -2,8 +2,8 @@ services:
   app-service:
     image: ghcr.io/remla25-team15/app-service
     container_name: app-service
-    ports:
-      - "${APP_SERVICE_PORT}:${APP_SERVICE_PORT}"
+    expose:
+      - ${APP_SERVICE_PORT}
     environment:
       - FLASK_ENV=production
       - APP_NAME=app-service
@@ -17,8 +17,8 @@ services:
   app-frontend:
     image: ghcr.io/remla25-team15/app-frontend
     container_name: app-frontend
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    expose:
+      - ${FRONTEND_PORT}
     environment:
       - FLASK_ENV=production
       - APP_SERVICE_URL=http://${APP_SERVICE_HOST}:${APP_SERVICE_PORT}
@@ -28,8 +28,8 @@ services:
   model-service:
     image: ghcr.io/remla25-team15/model-service
     container_name: model-service
-    ports:
-      - "${MODEL_SERVICE_PORT}:${MODEL_SERVICE_PORT}"
+    expose:
+      - ${MODEL_SERVICE_PORT}
     environment:
       - FLASK_ENV=production
       - MODEL_RESOURCE_URI=https://drive.google.com/file/d/1F6i--L50pVm7p0dcApGIhepC7CovC3La/view?usp=sharing

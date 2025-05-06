@@ -7,7 +7,7 @@ services:
       - DEBUG=True
     volumes:
       - ../app-service:/app
-    ports:
+    expose:
       - "5000:5000"
 
   app-frontend:

@@ -2,7 +2,7 @@
 
 This project is managed from the `operation/` directory using Docker Compose. It orchestrates multiple services across repositories.
 
-### Expected directory structure
+### Expected directory structure for development
 
 The expected directory layout is as follows:
 
@@ -36,6 +36,7 @@ This uses `docker-compose.yml` only and does not mount local code.
 
 For local development, use the `docker-compose.override.yml` file. This override:
 
+- Builds images for the services locally
 - Mounts local directories as volumes for live code updates
 - Sets development environment variables
 
@@ -52,3 +53,14 @@ docker compose up --build
 docker compose down          # Stop and clean up
 docker compose logs -f       # View logs
 ```
+
+## API Docs
+
+API endpoints are provided by app-service and model-service.
+
+You can access the API docs when running the application in development mode, i.e. `docker compose up --build`, (please refer the above
+section for setting it up in dev) because
+only app-frontend is accessible from host in production. These docs can be viewed by going to the respective urls after running the application:
+
+app-service: [http://localhost:5000/apidocs](http://localhost:5000/apidocs)
+model-service: [http://localhost:5001/apidocs](http://localhost:5001/apidocs)
