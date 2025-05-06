@@ -21,6 +21,12 @@ The expected directory layout is as follows:
 
 All sibling directories are mounted or built as needed from the operation/ context.
 
+To clone the required services, please run
+
+```zsh
+./clone.sh
+```
+
 ## Running in Production
 
 To run the application using prebuilt images (from GitHub Container Registry):
