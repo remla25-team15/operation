@@ -20,6 +20,11 @@ Created PR: https://github.com/remla25-team15/app-frontend/pull/4 \
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/7 \
 Approved PR: https://github.com/remla25-team15/lib-version/pull/2 \
 
+-- Liwia: --
+
+- created: https://github.com/remla25-team15/model-service/pull/1
+- approved: https://github.com/remla25-team15/app-frontend/pull/2
+
 --...--
 
 # A2:
