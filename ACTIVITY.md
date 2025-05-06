@@ -29,6 +29,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 - created: https://github.com/remla25-team15/model-service/pull/1
 - approved: https://github.com/remla25-team15/app-frontend/pull/2
 
---...--
+--Aiman--
+- created: https://github.com/remla25-team15/lib-version/pull/2
+- approved: https://github.com/remla25-team15/model-service/pull/1
+
 
 # A2:
