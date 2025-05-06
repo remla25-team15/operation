@@ -3,33 +3,40 @@ services:
     image: ghcr.io/remla25-team15/app-service
     container_name: app-service
     ports:
-      - "5000:5000"
+      - "${APP_SERVICE_PORT}:${APP_SERVICE_PORT}"
     environment:
       - FLASK_ENV=production
       - APP_NAME=app-service
-      - PORT=5000
+      - PORT=${APP_SERVICE_PORT}
       - HOST=0.0.0.0
-      - MODEL_SERVICE_URL=http://model-service:5001
+      - MODEL_SERVICE_URL=http://${MODEL_SERVICE_HOST}:${MODEL_SERVICE_PORT}
+    volumes:
+      - ./secrets/dummy_secret.txt:/run/secrets/dummy_secret:ro
     restart: unless-stopped
 
   app-frontend:
     image: ghcr.io/remla25-team15/app-frontend
     container_name: app-frontend
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     environment:
       - FLASK_ENV=production
-      - APP_SERVICE_URL=http://app-service:5000
+      - APP_SERVICE_URL=http://${APP_SERVICE_HOST}:${APP_SERVICE_PORT}
+      - PORT=${FRONTEND_PORT}
     restart: unless-stopped
 
   model-service:
     image: ghcr.io/remla25-team15/model-service
     container_name: model-service
     ports:
-      - "5001:5001"
+      - "${MODEL_SERVICE_PORT}:${MODEL_SERVICE_PORT}"
     environment:
       - FLASK_ENV=production
-      - MODEL_RESOURCE_URI=foo
+      - MODEL_RESOURCE_URI=https://drive.google.com/file/d/1F6i--L50pVm7p0dcApGIhepC7CovC3La/view?usp=sharing
+      - CV_URI=https://drive.google.com/file/d/14bCZu2mMU_90ngZLDXyQh9fQCbqDW0E-/view?usp=sharing
+      - PORT=${MODEL_SERVICE_PORT}
+    volumes:
+      - model-cache:/models
     restart: unless-stopped
 
   nginx:
@@ -39,12 +46,15 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/fallback.html:/usr/share/nginx/html/fallback.html
     ports:
-      - "8080:80"
+      - "${NGINX_PORT}:80"
     depends_on:
       - app-service
       - model-service
       - app-frontend
     restart: unless-stopped
+
+volumes:
+  model-cache:
 
 networks:
   default:
