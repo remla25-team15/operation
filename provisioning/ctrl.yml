@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Placeholder task
+      debug:
+        msg: "Provisioning for {{ inventory_hostname }} is not yet implemented."
