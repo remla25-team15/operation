@@ -57,3 +57,11 @@ All services should return a response that looks like this:
     "ping": "pong"
 }
 ```
+
+If you want to SSH into a VM, you can do it by running the command:
+
+```zsh
+ssh -i ~/.ssh/ansible-provision-key vagrant@192.168.56.<HOST>
+```
+
+> Replace <HOST> with the actual host you want to SSH into, e.g. 100 for ctrl.

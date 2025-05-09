@@ -9,3 +9,142 @@
         key: "{{ item }}"
       with_file:
         - public_keys/shreyas-provision-key.pub
+
+    - name: Swap management
+      block:
+        - name: Disable swap for current session
+          ansible.builtin.shell: swapoff -a
+
+        - name: Remove swap entry from /etc/fstab
+          ansible.builtin.lineinfile:
+            path: /etc/fstab
+            regexp: '^([^#].*\s+swap\s+)'
+            state: absent
+
+    - name: Load br_netfilter and overlay modules
+      block:
+        - name: Ensure br_netfilter and overlay modules are loaded on boot
+          ansible.builtin.copy:
+            dest: /etc/modules-load.d/k8s.conf
+            content: |
+              overlay
+              br_netfilter
+            owner: root
+            group: root
+            mode: "0644"
+
+        - name: Load br_netfilter module
+          community.general.modprobe:
+            name: br_netfilter
+            state: present
+
+        - name: Load overlay module
+          community.general.modprobe:
+            name: overlay
+            state: present
+
+    - name: IP forwarding
+      block:
+        - name: Enable IPv4 forwarding
+          ansible.posix.sysctl:
+            name: net.ipv4.ip_forward
+            value: "1"
+            sysctl_set: true
+
+        - name: Enable IPv4 forwarding to bridged connections
+          ansible.posix.sysctl:
+            name: net.bridge.bridge-nf-call-iptables
+            value: "1"
+            sysctl_set: true
+
+        - name: Enable IPv6 forwarding to bridged connections
+          ansible.posix.sysctl:
+            name: net.bridge.bridge-nf-call-ip6tables
+            value: "1"
+            sysctl_set: true
+
+    - name: Copy static /etc/hosts file to all nodes
+      ansible.builtin.copy:
+        src: files/hosts
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Add Kubernetes repository
+      block:
+        - name: Download Kubernetes signing key
+          ansible.builtin.get_url:
+            url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+            dest: /tmp/kubernetes-release.key
+
+        - name: Convert GPG key to keyring format
+          ansible.builtin.command: >
+            gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-release.key
+          args:
+            creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+        - name: Add Kubernetes apt repository
+          ansible.builtin.apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+            state: present
+            filename: kubernetes
+
+        - name: Update apt cache after adding Kubernetes repo
+          ansible.builtin.apt:
+            update_cache: yes
+
+    - name: Install K8s tools
+      ansible.builtin.apt:
+        name:
+          - containerd
+          - runc
+          - kubeadm
+          - kubelet
+          - kubectl
+        update_cache: no
+
+    - name: Configure containerd
+      block:
+        - name: Dump default config
+          ansible.builtin.shell: containerd config default
+          register: containerd_config
+
+        - name: Ensure /etc/containerd directory exists
+          ansible.builtin.file:
+            path: /etc/containerd
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Write default config to file
+          ansible.builtin.copy:
+            content: "{{containerd_config.stdout}}"
+            dest: /etc/containerd/config.toml
+            mode: "0644"
+
+        - name: Update config
+          block:
+            - name: Set disable AppArmor
+              ansible.builtin.lineinfile:
+                path: /etc/containerd/config.toml
+                regexp: '^\s*disable_apparmor\s*='
+                line: "    disable_apparmor = true"
+
+            - name: Set Systemd Cgroup
+              ansible.builtin.lineinfile:
+                path: /etc/containerd/config.toml
+                regexp: '^\s*SystemdCgroup\s*='
+                line: "            SystemdCgroup = true"
+
+        - name: Restart containerd service, in all cases
+          ansible.builtin.service:
+            name: containerd
+            state: restarted
+
+    - name: Start kubelet and register it for autostart on future system boots
+      ansible.builtin.service:
+        name: kubelet
+        state: started
+        enabled: yes
