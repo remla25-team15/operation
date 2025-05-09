@@ -4,7 +4,7 @@
 ORG_URL="https://github.com/remla25-team15"
 
 # List of repositories to clone
-REPOS=("app-frontend" "app-service" "model-service")
+REPOS=("app-frontend" "app-service" "model-service" "lib-ml" "model-training" "lib-version")
 
 # Clone each repository
 for REPO in "${REPOS[@]}"; do
