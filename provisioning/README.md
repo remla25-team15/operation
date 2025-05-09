@@ -1,12 +1,28 @@
 ## Running the VMs
 
-Simply run
+> You should register your SSH keys before trying to run the VMs
 
+Simply run the following commands to manage the VMs:
+
+To start the VMs, run:
 ```zsh
 vagrant up
 ```
 
-> You should register your SSH keys before trying to run the VMs
+To destroy the VMs and remove all associated resources, run:
+```zsh
+vagrant destroy
+```
+
+To provision the VMs (e.g., apply configuration changes), run:
+```zsh
+vagrant provision
+```
+
+For pausing/resuming a VM use :
+```zsh
+vagrant suspend / vagrant resume
+```
 
 ## Creating and registering ssh keys
 
