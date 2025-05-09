@@ -1,0 +1,66 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # Base image
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.box_version = "202502.21.0"
+
+  # Node configuration
+  CONTROL_VM_NAME = "ctrl"
+  CONTROL_VM_IP = "192.168.56.100"
+  WORKER_VM_COUNT = 2
+  BASE_IP = "192.168.56."
+
+  CONTROL_VM_MEMORY = 4096
+  CONTROL_VM_CPUS = 1
+  WORKER_VM_MEMORY = 6144
+  WORKER_VM_CPUS = 2
+
+  # Control node
+  config.vm.define CONTROL_VM_NAME do |ctrl|
+    ctrl.vm.hostname = CONTROL_VM_NAME
+    ctrl.vm.network "private_network", ip: CONTROL_VM_IP
+    ctrl.vm.provider "virtualbox" do |vb|
+      vb.name = CONTROL_VM_NAME
+      vb.memory = CONTROL_VM_MEMORY
+      vb.cpus = CONTROL_VM_CPUS
+    end
+    ctrl.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "general.yml"
+    end
+    ctrl.vm.provision :ansible do |a|
+      a.compatibility_mode = "2.0"
+      a.playbook = "ctrl.yml"
+    end
+  end
+
+  # Worker nodes
+  (1..WORKER_VM_COUNT).each do |i|
+    vm_name = "node-#{i}"
+    vm_ip = "#{BASE_IP}#{100 + i}"
+
+    config.vm.define vm_name do |node|
+      node.vm.hostname = vm_name
+      node.vm.network "private_network", ip: vm_ip
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = vm_name
+        vb.memory = WORKER_VM_MEMORY
+        vb.cpus = WORKER_VM_CPUS
+      end
+      node.vm.provision :ansible do |a|
+        a.compatibility_mode = "2.0"
+        a.playbook = "general.yml"
+      end
+      node.vm.provision :ansible do |a|
+        a.compatibility_mode = "2.0"
+        a.playbook = "node.yml"
+      end
+    end
+  end
+end
