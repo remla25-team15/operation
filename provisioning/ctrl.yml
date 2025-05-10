@@ -35,7 +35,7 @@
         state: directory
         owner: vagrant
         group: vagrant
-        mode: 0755
+        mode: 0777
 
     - name: Copy admin.conf to vagrant kube config
       copy:
@@ -44,7 +44,7 @@
         remote_src: yes
         owner: vagrant
         group: vagrant
-        mode: 0644
+        mode: 0777
 
     - name: Copy kubeconfig to shared folder for host access
       copy:
@@ -53,7 +53,7 @@
         remote_src: yes
         owner: vagrant
         group: vagrant
-        mode: 0644
+        mode: 0777
 
     - name: Download Flannel pod
       get_url:
