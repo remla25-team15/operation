@@ -10,7 +10,7 @@
       with_file:
         - public_keys/shreyas-provision-key.pub
         - public_keys/alessandro-provision-key.pub
-
+        - public_keys/aimen-provision-key.pub
     - name: Swap management
       block:
         - name: Disable swap for current session
