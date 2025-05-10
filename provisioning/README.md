@@ -81,3 +81,30 @@ ssh -i ~/.ssh/ansible-provision-key vagrant@192.168.56.<HOST>
 ```
 
 > Replace <HOST> with the actual host you want to SSH into, e.g. 100 for ctrl.
+
+## Accessing the Kubernetes Cluster from the Host
+Set up the kubernetes controller inside the VM environment.
+```zsh
+ansible-playbook -i inventory.cfg ctrl.yml
+```
+
+To manage your kubernetes cluster from the host machine copy the kubeconfig file from the controller VM 
+and export it for kubectl to use
+```zsh
+vagrant scp ctrl:/etc/kubernetes/admin.conf kubeconfig
+```
+```zsh
+export KUBECONFIG=$(pwd)/kubeconfig
+```
+
+Test access
+
+Check if the controller exists and is ready
+```zsh
+kubectl get nodes
+```
+
+check if the pod flannel got created
+```zsh
+kubectl get pods -A
+```
