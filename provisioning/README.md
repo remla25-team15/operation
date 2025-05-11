@@ -139,15 +139,33 @@ To deploy the Kubernetes Dashboard, follow the official documentation:
 To access the Dashboard, you need a bearer token. You can create a sample user and generate the token by following the steps in the Kubernetes Dashboard GitHub repository:  
 [Creating a Sample User](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
 
+```kubectl -n kubernetes-dashboard create token admin-user```
+
 Once the token is created, you can use it to log in to the Dashboard.
 
 #### Enabling Access to the Dashboard
 
-You can enable access to the Dashboard using the `kubectl` command-line tool. Run the following command to forward the Dashboard service to your local machine:
+1. Grab the external IP that MetalLB assigned to your ingress-nginx controller:
+```
+export DASHBOARD_IP=$(
+  kubectl get svc ingress-nginx-controller \
+    -n ingress-nginx \
+    -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+)
+```
+
+2. Append the mapping to /etc/hosts so dashboard.local resolves to that IP:
+```
+sudo sh -c "echo \"${DASHBOARD_IP} dashboard.local\" >> /etc/hosts"
+```
+
+3. Verify with: `grep dashboard.local /etc/hosts`
+
+
+> OR Run the following command to forward the Dashboard service to your local machine:
 
 ```zsh
 kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
 ```
 
-The Dashboard will then be accessible at:  
-[https://localhost:8443](https://localhost:8443)
+The Dashboard will then be accessible at: [https://localhost:8443](https://localhost:8443)

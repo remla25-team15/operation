@@ -1,5 +1,5 @@
 ---
-- name: Final cluster steps - MetalLB
+- name: Final cluster steps - MetalLB & Dashboard TLS
   hosts: ctrl
   become: yes
 
@@ -25,7 +25,6 @@
     dash_ingress_host: dashboard.local                       # adjust to your DNS
     dash_sa_name: admin-user
     token_cmd: "kubectl -n {{ dash_ns }} create token {{ dash_sa_name }}"
-
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Step 20: Install MetalLB + IPAddressPool + L2Advertisement
@@ -138,9 +137,9 @@
           --for=condition=available deployment/{{ ingress_release }}-controller
           --timeout=120s
 
-    
+
     # ────────────────────────────────────────────────────────────────────────────────
-    # Step 22 – install the Kubernetes Dashboard
+    # Step 22.b – install the Kubernetes Dashboard
     # ────────────────────────────────────────────────────────────────────────────────
     - name: Add the kubernetes-dashboard Helm repo
       become_user: vagrant
@@ -208,7 +207,60 @@
             name: cluster-admin
             apiGroup: rbac.authorization.k8s.io
 
-    # ── Ingress for HTTPS access via nginx controller ──────────────────────────
+    # ── Generate a self-signed cert & push it as a K8s TLS Secret ──────────────────────────
+    - name: Generate private key for Dashboard TLS
+      community.crypto.openssl_privatekey:
+        path: /etc/kubernetes/dashboard.key
+        size: 2048
+        type: RSA
+      run_once: true
+
+    - name: Generate CSR for Dashboard TLS
+      community.crypto.openssl_csr:
+        path: /etc/kubernetes/dashboard.csr
+        privatekey_path: /etc/kubernetes/dashboard.key
+        common_name: "{{ dash_ingress_host }}"
+        subject_alt_name: "DNS:{{ dash_ingress_host }}"
+      run_once: true
+
+    - name: Generate self-signed cert for Dashboard TLS
+      community.crypto.x509_certificate:
+        path: /etc/kubernetes/dashboard.crt
+        csr_path: /etc/kubernetes/dashboard.csr
+        privatekey_path: /etc/kubernetes/dashboard.key
+        provider: selfsigned
+      run_once: true
+    
+    - name: Slurp Dashboard certificate from remote
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/dashboard.crt
+      register: dashboard_crt_slurp
+      run_once: true
+
+    - name: Slurp Dashboard private key from remote
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/dashboard.key
+      register: dashboard_key_slurp
+      run_once: true
+
+    - name: Create Kubernetes TLS Secret for Dashboard
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: dashboard-tls
+            namespace: "{{ dash_ns }}"
+          type: kubernetes.io/tls
+          data:
+            # slurp.content is already Base64-encoded
+            tls.crt: "{{ dashboard_crt_slurp.content }}"
+            tls.key: "{{ dashboard_key_slurp.content }}"
+      run_once: true
+
+    # ── Expose Dashboard via Ingress with TLS ──────────────────────────
     - name: Expose Dashboard through Ingress
       become_user: vagrant
       kubernetes.core.k8s:
@@ -224,6 +276,9 @@
               nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
           spec:
             ingressClassName: nginx
+            tls:
+            - hosts: [ "{{ dash_ingress_host }}" ]
+              secretName: dashboard-selfsigned
             rules:
               - host: "{{ dash_ingress_host }}"
                 http:
@@ -232,6 +287,8 @@
                       pathType: Prefix
                       backend:
                         service:
-                          name: "{{ dash_release }}"
+                          # name: "{{ dash_release }}"
+                          name: "{{ dash_release }}-kong-proxy"
                           port:
                             number: 443   # dashboard service exposes HTTPS
+
