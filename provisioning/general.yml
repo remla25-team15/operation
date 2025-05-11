@@ -10,7 +10,7 @@
       with_file:
         - public_keys/shreyas-provision-key.pub
         - public_keys/alessandro-provision-key.pub
-        - public_keys/aimen-provision-key.pub
+        # - public_keys/aimen-provision-key.pub
     - name: Swap management
       block:
         - name: Disable swap for current session
@@ -64,9 +64,9 @@
             value: "1"
             sysctl_set: true
 
-    - name: Copy static /etc/hosts file to all nodes
-      ansible.builtin.copy:
-        src: files/hosts
+    - name: Deploy dynamic /etc/hosts file
+      ansible.builtin.template:
+        src: templates/hosts.j2
         dest: /etc/hosts
         owner: root
         group: root
@@ -104,7 +104,7 @@
           - kubelet
           - kubectl
         update_cache: no
-      
+
     - name: Configure containerd
       block:
         - name: Dump default config
