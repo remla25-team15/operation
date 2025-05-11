@@ -91,10 +91,10 @@ Vagrant.configure("2") do |config|
           base_ip: BASE_IP
         }
       end
-      # node.vm.provision :ansible do |a|
-      #   a.compatibility_mode = "2.0"
-      #   a.playbook = "node.yml"
-      # end
+      node.vm.provision :ansible do |a|
+        a.compatibility_mode = "2.0"
+        a.playbook = "node.yml"
+      end
     end
   end
 end
