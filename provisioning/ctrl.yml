@@ -1,13 +1,6 @@
 ---
-- hosts: all
-  become: yes
-  tasks:
-    - name: Placeholder task
-      debug:
-        msg: "Provisioning for {{ inventory_hostname }} is not yet implemented."
-
 - name: Kubernetes Controller Setup
-  hosts: controller
+  hosts: ctrl
   become: yes
 
   vars:
@@ -63,8 +56,8 @@
     - name: Patch Flannel to use eth1
       lineinfile:
         path: "{{ flannel_local }}"
-        insertafter: '^ *- --kube-subnet-mgr'
-        line: '        - --iface=eth1'
+        insertafter: "^ *- --kube-subnet-mgr"
+        line: "        - --iface=eth1"
 
     - name: Delete old Flannel DaemonSet if it exists
       command: kubectl delete daemonset kube-flannel-ds -n kube-flannel
