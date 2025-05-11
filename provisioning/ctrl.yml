@@ -5,3 +5,104 @@
     - name: Placeholder task
       debug:
         msg: "Provisioning for {{ inventory_hostname }} is not yet implemented."
+
+- name: Kubernetes Controller Setup
+  hosts: controller
+  become: yes
+
+  vars:
+    advertise_address: 192.168.56.100
+    node_name: ctrl
+    pod_network_cidr: 10.244.0.0/16
+    kubeconfig_path: /etc/kubernetes/admin.conf
+    kubeconfig_user_path: /home/vagrant/.kube/config
+    flannel_url: https://raw.githubusercontent.com/flannel-io/flannel/v0.26.7/Documentation/kube-flannel.yml
+    flannel_local: /tmp/kube-flannel.yml
+
+  tasks:
+    - name: Check if Kubernetes is already initialized
+      stat:
+        path: "{{ kubeconfig_path }}"
+      register: kubeinit
+
+    - name: Initialize the Kubernetes cluster
+      command: kubeadm init --apiserver-advertise-address={{ advertise_address }} --pod-network-cidr={{ pod_network_cidr }} --node-name {{ node_name }}
+      when: not kubeinit.stat.exists
+
+    - name: Create .kube directory for vagrant user
+      file:
+        path: /home/vagrant/.kube
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: 0777
+
+    - name: Copy admin.conf to vagrant kube config
+      copy:
+        src: "{{ kubeconfig_path }}"
+        dest: "{{ kubeconfig_user_path }}"
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+        mode: 0777
+
+    - name: Copy kubeconfig to shared folder for host access
+      copy:
+        src: "{{ kubeconfig_path }}"
+        dest: /vagrant/kubeconfig
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+        mode: 0777
+
+    - name: Download Flannel pod
+      get_url:
+        url: "{{ flannel_url }}"
+        dest: "{{ flannel_local }}"
+
+    - name: Patch Flannel to use eth1
+      lineinfile:
+        path: "{{ flannel_local }}"
+        insertafter: '^ *- --kube-subnet-mgr'
+        line: '        - --iface=eth1'
+
+    - name: Delete old Flannel DaemonSet if it exists
+      command: kubectl delete daemonset kube-flannel-ds -n kube-flannel
+      ignore_errors: yes
+      become_user: vagrant
+
+    - name: Apply Flannel network plugin
+      command: kubectl apply -f {{ flannel_local }}
+      become_user: vagrant
+
+    - name: Add Helm GPG key
+      shell: curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
+      args:
+        executable: /bin/bash
+
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
+        state: present
+        update_cache: yes
+
+    - name: Add Helm APT repository
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" > /etc/apt/sources.list.d/helm-stable-debian.list
+      args:
+        executable: /bin/bash
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Helm
+      apt:
+        name: helm
+        state: present
+
+    - name: Install Helm diff plugin
+      become_user: vagrant
+      shell: helm plugin install https://github.com/databus23/helm-diff
+      args:
+        creates: /home/vagrant/.local/share/helm/plugins/helm-diff
