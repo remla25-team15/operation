@@ -110,3 +110,44 @@ check if the pod flannel got created
 ```zsh
 kubectl get pods -A
 ```
+
+## finalizing the cluster
+
+> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because.. 
+
+Run the finalization notebook with:
+```
+ansible-playbook -u vagrant -i inventory.cfg finalization.yml
+```
+
+Then check if the namespaced CRDs run:
+```
+kubectl get ipaddresspools.metallb.io -n metallb-system
+kubectl get l2advertisements.metallb.io -n metallb-system
+kubectl -n ingress-nginx get svc
+kubectl -n kubernetes-dashboard get deploy
+kubectl -n kubernetes-dashboard get ingress
+```
+
+### Accessing the Kubernetes Dashboard
+
+To deploy the Kubernetes Dashboard, follow the official documentation:  
+[Deploying the Dashboard UI](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui)
+
+#### Generating a Bearer Token
+
+To access the Dashboard, you need a bearer token. You can create a sample user and generate the token by following the steps in the Kubernetes Dashboard GitHub repository:  
+[Creating a Sample User](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
+
+Once the token is created, you can use it to log in to the Dashboard.
+
+#### Enabling Access to the Dashboard
+
+You can enable access to the Dashboard using the `kubectl` command-line tool. Run the following command to forward the Dashboard service to your local machine:
+
+```zsh
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+```
+
+The Dashboard will then be accessible at:  
+[https://localhost:8443](https://localhost:8443)
