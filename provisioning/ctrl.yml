@@ -4,8 +4,8 @@
   become: yes
 
   vars:
-    advertise_address: 192.168.56.100
-    node_name: ctrl
+    advertise_address: "{{ control_ip }}"
+    node_name: "{{ control_node_name }}"
     pod_network_cidr: 10.244.0.0/16
     kubeconfig_path: /etc/kubernetes/admin.conf
     kubeconfig_user_path: /home/vagrant/.kube/config
