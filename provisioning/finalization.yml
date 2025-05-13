@@ -291,3 +291,16 @@
                           port:
                             number: 443 # dashboard service exposes HTTPS
 
+
+    - name: Install Istio
+      become_user: vagrant
+      shell: |
+        curl -L https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-arm64.tar.gz -o istio.tar.gz
+        tar -xzf istio.tar.gz
+        cd istio-1.25.2
+        export PATH=$PWD/bin:$PATH
+        ./bin/istioctl install -y
+        echo 'export PATH=$HOME/istio-1.25.2/bin:$PATH' >> ~/.bashrc
+      args:
+        chdir: /home/vagrant
+      run_once: true
