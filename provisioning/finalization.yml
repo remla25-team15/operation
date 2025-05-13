@@ -1,0 +1,294 @@
+---
+- name: Final cluster steps - MetalLB & Dashboard TLS
+  hosts: ctrl
+  become: yes
+
+  vars:
+    metallb_version: v0.14.9
+    metallb_manifest: >-
+      https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+    kubeconfig: /home/vagrant/.kube/config              # already created in ctrl.yml
+    pool_range: 192.168.56.80-192.168.56.89             # outside our node range
+    pool_name: default-address-pool
+    metallb_ns: metallb-system
+    
+    # step 21
+    ingress_repo: https://kubernetes.github.io/ingress-nginx
+    ingress_ns: ingress-nginx
+    ingress_release: ingress-nginx
+    ingress_lb_ip: ""   # set IP to use, or leave empty for auto-assign
+
+    # step 22
+    dash_repo: https://kubernetes.github.io/dashboard        # upstream Helm repo
+    dash_ns: kubernetes-dashboard
+    dash_release: kubernetes-dashboard
+    dash_ingress_host: dashboard.local                       # adjust to your DNS
+    dash_sa_name: admin-user
+    token_cmd: "kubectl -n {{ dash_ns }} create token {{ dash_sa_name }}"
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Step 20: Install MetalLB + IPAddressPool + L2Advertisement
+# ────────────────────────────────────────────────────────────────────────────────
+
+  pre_tasks:
+    - name: Ensure Python Kubernetes client is present # Needed for IPAddressPool..
+      ansible.builtin.apt:
+        name: python3-kubernetes
+        state: present
+        update_cache: yes
+
+  tasks:
+    - name: Apply MetalLB CRDs + namespace
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: kubectl apply -f {{ metallb_manifest }}
+      changed_when: false                                # idempotent
+      args:
+        creates: /var/lib/metallb-install.done
+      register: _unused
+
+    - name: Touch marker so we don't re-apply every run
+      file:
+        path: /var/lib/metallb-install.done
+        state: touch
+
+    - name: Wait until MetalLB controller is ready
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: >
+          kubectl wait -n {{ metallb_ns }}
+          -l app=metallb,component=controller
+          --for=condition=ready pod --timeout=60s
+
+    - name: Create IPAddressPool
+      become_user: vagrant
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: "{{ pool_name }}"
+            namespace: "{{ metallb_ns }}"
+          spec:
+            addresses:
+              - "{{ pool_range }}"
+            autoAssign: true                       # omit to accept default
+            avoidBuggyIPs: true                    # optional; skips .0 /.255  
+
+    - name: Advertise the pool (L2 mode)
+      become_user: vagrant
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: advertise-{{ pool_name }}
+            namespace: "{{ metallb_ns }}"
+          spec:
+            ipAddressPools:
+              - "{{ pool_name }}"
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Step 21 – install the Nginx Ingress Controller with Helm
+# ────────────────────────────────────────────────────────────────────────────────
+
+    - name: Add the ingress-nginx Helm repo
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: helm repo add ingress-nginx {{ ingress_repo }}
+      changed_when: "'already exists' not in _add_repo.stderr"
+      register: _add_repo
+      failed_when: false                   # repo add is idempotent
+
+    - name: Refresh the local Helm chart cache
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: helm repo update
+      changed_when: false
+
+    - name: Deploy / upgrade the Nginx Ingress Controller
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: >
+          helm upgrade --install {{ ingress_release }} ingress-nginx/ingress-nginx
+          --namespace {{ ingress_ns }} --create-namespace
+          --set controller.service.type=LoadBalancer
+          {% if ingress_lb_ip | length > 0 %}
+          --set controller.service.loadBalancerIP={{ ingress_lb_ip }}
+          {% endif %}
+      args:
+        creates: /var/lib/ingress-nginx-install.done
+      register: _unused
+
+    - name: Mark installation so we do not run Helm on every play
+      file:
+        path: /var/lib/ingress-nginx-install.done
+        state: touch
+
+    - name: Wait until the controller Deployment is ready
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: >
+          kubectl -n {{ ingress_ns }} wait
+          --for=condition=available deployment/{{ ingress_release }}-controller
+          --timeout=120s
+
+
+    # ────────────────────────────────────────────────────────────────────────────────
+    # Step 22.b – install the Kubernetes Dashboard
+    # ────────────────────────────────────────────────────────────────────────────────
+    - name: Add the kubernetes-dashboard Helm repo
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: helm repo add kubernetes-dashboard {{ dash_repo }}
+      changed_when: "'already exists' not in _add_repo.stderr"
+      register: _add_repo
+      failed_when: false
+
+    - name: Update Helm repo cache
+      become_user: vagrant
+      ansible.builtin.command: helm repo update
+      changed_when: false
+
+    - name: Install / upgrade the Dashboard chart
+      become_user: vagrant
+      ansible.builtin.command: >
+        helm upgrade --install {{ dash_release }} kubernetes-dashboard/kubernetes-dashboard
+        --namespace {{ dash_ns }} --create-namespace
+        --set app.ingress.enabled=false
+      args:
+        creates: /var/lib/k8s-dashboard-install.done
+      register: _unused
+
+    - name: Mark Dashboard installation
+      file:
+        path: /var/lib/k8s-dashboard-install.done
+        state: touch
+
+    - name: Wait until every Dashboard Deployment is Available
+      become_user: vagrant
+      ansible.builtin.command: >
+        kubectl -n {{ dash_ns }} wait --for=condition=available
+        deployment --all --timeout=30s
+
+    # ── RBAC for admin login ───────────────────────────────────────────────────
+    - name: Create admin ServiceAccount
+      become_user: vagrant
+      kubernetes.core.k8s:
+        kubeconfig: /home/vagrant/.kube/config
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: "{{ dash_sa_name }}"
+            namespace: "{{ dash_ns }}"
+
+    - name: Bind admin ServiceAccount to cluster-admin role
+      become_user: vagrant
+      kubernetes.core.k8s:
+        kubeconfig: /home/vagrant/.kube/config
+        state: present
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: "{{ dash_sa_name }}-binding"
+          subjects:
+            - kind: ServiceAccount
+              name: "{{ dash_sa_name }}"
+              namespace: "{{ dash_ns }}"
+          roleRef:
+            kind: ClusterRole
+            name: cluster-admin
+            apiGroup: rbac.authorization.k8s.io
+
+    # ── Generate a self-signed cert & push it as a K8s TLS Secret ──────────────────────────
+    - name: Generate private key for Dashboard TLS
+      community.crypto.openssl_privatekey:
+        path: /etc/kubernetes/dashboard.key
+        size: 2048
+        type: RSA
+      run_once: true
+
+    - name: Generate CSR for Dashboard TLS
+      community.crypto.openssl_csr:
+        path: /etc/kubernetes/dashboard.csr
+        privatekey_path: /etc/kubernetes/dashboard.key
+        common_name: "{{ dash_ingress_host }}"
+        subject_alt_name: "DNS:{{ dash_ingress_host }}"
+      run_once: true
+
+    - name: Generate self-signed cert for Dashboard TLS
+      community.crypto.x509_certificate:
+        path: /etc/kubernetes/dashboard.crt
+        csr_path: /etc/kubernetes/dashboard.csr
+        privatekey_path: /etc/kubernetes/dashboard.key
+        provider: selfsigned
+      run_once: true
+    
+    - name: Slurp Dashboard certificate from remote
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/dashboard.crt
+      register: dashboard_crt_slurp
+      run_once: true
+
+    - name: Slurp Dashboard private key from remote
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/dashboard.key
+      register: dashboard_key_slurp
+      run_once: true
+
+    - name: Create Kubernetes TLS Secret for Dashboard
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: dashboard-tls
+            namespace: "{{ dash_ns }}"
+          type: kubernetes.io/tls
+          data:
+            # slurp.content is already Base64-encoded
+            tls.crt: "{{ dashboard_crt_slurp.content }}"
+            tls.key: "{{ dashboard_key_slurp.content }}"
+      run_once: true
+
+    # ── Expose Dashboard via Ingress with TLS ──────────────────────────
+    - name: Expose Dashboard through Ingress
+      become_user: vagrant
+      kubernetes.core.k8s:
+        kubeconfig: /home/vagrant/.kube/config
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: "{{ dash_release }}-ingress"
+            namespace: "{{ dash_ns }}"
+            annotations:
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          spec:
+            ingressClassName: nginx
+            tls:
+            - hosts: [ "{{ dash_ingress_host }}" ]
+              secretName: dashboard-selfsigned
+            rules:
+              - host: "{{ dash_ingress_host }}"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          # name: "{{ dash_release }}"
+                          name: "{{ dash_release }}-kong-proxy"
+                          port:
+                            number: 443   # dashboard service exposes HTTPS
+

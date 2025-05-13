@@ -110,3 +110,63 @@ check if the pod flannel got created
 ```zsh
 kubectl get pods -A
 ```
+
+## finalizing the cluster
+
+> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because.. 
+
+Run the finalization notebook with:
+```
+ansible-playbook -u vagrant -i inventory.cfg finalization.yml
+```
+
+Then check if the namespaced CRDs run:
+```
+kubectl get ipaddresspools.metallb.io -n metallb-system
+kubectl get l2advertisements.metallb.io -n metallb-system
+kubectl -n ingress-nginx get svc
+kubectl -n kubernetes-dashboard get deploy
+kubectl -n kubernetes-dashboard get ingress
+```
+
+### Kubernetes dashboard documentation
+You do not need to visit any external links — this section simply references the documentation that was used as a source. You may skip to the next skip.
+
+To deploy the Kubernetes Dashboard, the following documentation has been consulted:
+[Deploying the Dashboard UI](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui)
+
+To access the Kubernetes Dashboard, you need a bearer token. The recommended way to generate it is by following the approach provided in the Kubernetes Dashboard GitHub documentation.
+[Creating a Sample User](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
+
+#### Generating a Bearer Token
+To access the Kubernetes Dashboard, you need a bearer token. You can generate it by running the following command:
+```kubectl -n kubernetes-dashboard create token admin-user```
+
+Once the token is created, you can use it to log in to the Dashboard.
+
+#### Enabling Access to the Dashboard
+
+1. Grab the external IP that MetalLB assigned to your ingress-nginx controller:
+```
+export DASHBOARD_IP=$(
+  kubectl get svc ingress-nginx-controller \
+    -n ingress-nginx \
+    -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+)
+```
+
+2. Append the mapping to /etc/hosts so dashboard.local resolves to that IP:
+```
+sudo sh -c "echo \"${DASHBOARD_IP} dashboard.local\" >> /etc/hosts"
+```
+
+3. Verify with: `grep dashboard.local /etc/hosts`
+
+
+> OR Run the following command to forward the Dashboard service to your local machine:
+
+```zsh
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+```
+
+The Dashboard will then be accessible at: [https://localhost:8443](https://localhost:8443)
