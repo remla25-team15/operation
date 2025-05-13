@@ -123,7 +123,7 @@ kubectl get pods -A
 
 ## finalizing the cluster
 
-> TODO: Is this necessary? -> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because..
+> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because..
 
 > We run the provisioning in vagrantfile, so no need to do this either.
 > Run the finalization notebook with:
@@ -131,8 +131,6 @@ kubectl get pods -A
 ```
 ansible-playbook -u vagrant -i inventory.cfg finalization.yml
 ```
-
-TODO: Preceeding block can be removed.
 
 Then check if the namespaced CRDs run:
 
