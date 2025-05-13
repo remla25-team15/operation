@@ -35,3 +35,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 
 # A2:
+--Aiman--
+- created PR: https://github.com/remla25-team15/operation/pull/14
+- approved PR: https://github.com/remla25-team15/operation/pull/18
+- approved PR: https://github.com/remla25-team15/operation/pull/19
+- created issue: https://github.com/remla25-team15/operation/issues/20
+
