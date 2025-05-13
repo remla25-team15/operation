@@ -45,7 +45,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 -- Shreyas: --
 
 -- Liwia: --
-
+- created: https://github.com/remla25-team15/operation/pull/9/commits/6af355b498f4189469f8effb8bf86d3bb430dc6a
+- approved: https://github.com/remla25-team15/operation/pull/9
+  
 --Aiman--
 - created PR: https://github.com/remla25-team15/operation/pull/14
 - approved PR: https://github.com/remla25-team15/operation/pull/18
