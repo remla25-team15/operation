@@ -164,7 +164,8 @@ kubectl -n kubernetes-dashboard create token admin-user
 
 Once the token is created, you can use it to log in to the Dashboard.
 
-#### Enabling Access to the Dashboard
+#### Enabling Direct access to the dashboard
+TODO: We could not get ingress setup to work. Skip the below three steps and proceed to the next stage.
 
 1. Grab the external IP that MetalLB assigned to your ingress-nginx controller:
 
@@ -184,10 +185,13 @@ sudo sh -c "echo \"${DASHBOARD_IP} dashboard.local\" >> /etc/hosts"
 
 3. Verify with: `grep dashboard.local /etc/hosts`
 
-> OR Run the following command to forward the Dashboard service to your local machine:
+#### Enabling access to the dashboard via tunneling
 
+Run the following command to forward the Dashboard service to your local machine:
 ```zsh
 kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
 ```
+
+
 
 The Dashboard will then be accessible at: [https://localhost:8443](https://localhost:8443)
