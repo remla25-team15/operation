@@ -6,16 +6,25 @@
       ansible.posix.authorized_key:
         user: vagrant
         state: present
-        key: "{{ item }}"
-      with_file:
+        key: "{{ lookup('file', item) }}"
+      loop:
         - public_keys/shreyas-provision-key.pub
         - public_keys/alessandro-provision-key.pub
         - public_keys/dima-provision-key.pub
-        - public_keys/aimen-provision-key.pub
+        # - public_keys/aimen-provision-key.pub
+
     - name: Swap management
       block:
+        - name: Check if swap is currently on
+          ansible.builtin.command: swapon --summary
+          register: swap_status
+          changed_when: false
+          failed_when: false
+
         - name: Disable swap for current session
           ansible.builtin.shell: swapoff -a
+          when: swap_status.stdout != ""
+          become: true
 
         - name: Remove swap entry from /etc/fstab
           ansible.builtin.lineinfile:
@@ -108,9 +117,15 @@
 
     - name: Configure containerd
       block:
+        - name: Check if containerd config exists
+          ansible.builtin.stat:
+            path: /etc/containerd/config.toml
+          register: containerd_config_file
+
         - name: Dump default config
           ansible.builtin.shell: containerd config default
           register: containerd_config
+          when: not containerd_config_file.stat.exists
 
         - name: Ensure /etc/containerd directory exists
           ansible.builtin.file:
@@ -125,6 +140,8 @@
             content: "{{containerd_config.stdout}}"
             dest: /etc/containerd/config.toml
             mode: "0644"
+          when: not containerd_config_file.stat.exists
+          notify: Restart containerd
 
         - name: Update config
           block:
@@ -133,20 +150,23 @@
                 path: /etc/containerd/config.toml
                 regexp: '^\s*disable_apparmor\s*='
                 line: "    disable_apparmor = true"
+              notify: Restart containerd
 
             - name: Set Systemd Cgroup
               ansible.builtin.lineinfile:
                 path: /etc/containerd/config.toml
                 regexp: '^\s*SystemdCgroup\s*='
                 line: "            SystemdCgroup = true"
-
-        - name: Restart containerd service, in all cases
-          ansible.builtin.service:
-            name: containerd
-            state: restarted
+              notify: Restart containerd
 
     - name: Start kubelet and register it for autostart on future system boots
       ansible.builtin.service:
         name: kubelet
         state: started
         enabled: yes
+
+  handlers:
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
