@@ -129,16 +129,17 @@ kubectl -n kubernetes-dashboard get deploy
 kubectl -n kubernetes-dashboard get ingress
 ```
 
-### Accessing the Kubernetes Dashboard
+### Kubernetes dashboard documentation
+You do not need to visit any external links — this section simply references the documentation that was used as a source. You may skip to the next skip.
 
-To deploy the Kubernetes Dashboard, follow the official documentation:  
+To deploy the Kubernetes Dashboard, the following documentation has been consulted:
 [Deploying the Dashboard UI](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui)
 
-#### Generating a Bearer Token
-
-To access the Dashboard, you need a bearer token. You can create a sample user and generate the token by following the steps in the Kubernetes Dashboard GitHub repository:  
+To access the Kubernetes Dashboard, you need a bearer token. The recommended way to generate it is by following the approach provided in the Kubernetes Dashboard GitHub documentation.
 [Creating a Sample User](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
 
+#### Generating a Bearer Token
+To access the Kubernetes Dashboard, you need a bearer token. You can generate it by running the following command:
 ```kubectl -n kubernetes-dashboard create token admin-user```
 
 Once the token is created, you can use it to log in to the Dashboard.
