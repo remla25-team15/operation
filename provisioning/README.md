@@ -191,6 +191,9 @@ You should see a DNS entry like:
 
 The Dashboard will then be accessible at: [https://dashboard.local/](https://dashboard.local/)
 
+> Note: We are using self-signed certificates so your browser will complain that your connection is not private,
+> just trust us and proceed.
+
 #### Enabling access to the dashboard via tunneling
 
 If for some reason you cannot access the dashboard by following the above steps, you
