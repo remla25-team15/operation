@@ -11,7 +11,7 @@
         - public_keys/shreyas-provision-key.pub
         - public_keys/alessandro-provision-key.pub
         - public_keys/dima-provision-key.pub
-        # - public_keys/aimen-provision-key.pub
+        - public_keys/aimen-provision-key.pub
 
     - name: Swap management
       block:
