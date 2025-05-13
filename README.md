@@ -1,3 +1,7 @@
+# Assignment 2 readme
+Can be found here: 
+https://github.com/remla25-team15/operation/tree/main/provisioning
+
 ## Docker Compose setup
 
 This project is managed from the `operation/` directory using Docker Compose. It orchestrates multiple services across repositories.
