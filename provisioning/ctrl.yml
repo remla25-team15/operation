@@ -52,16 +52,25 @@
       get_url:
         url: "{{ flannel_url }}"
         dest: "{{ flannel_local }}"
+        mode: "0644"
 
     - name: Patch Flannel to use eth1
       lineinfile:
         path: "{{ flannel_local }}"
         insertafter: "^ *- --kube-subnet-mgr"
         line: "        - --iface=eth1"
+        regexp: "^ *- --iface=eth1$"
+
+    - name: Check if Flannel DaemonSet exists
+      command: kubectl get daemonset kube-flannel-ds -n kube-flannel
+      register: flannel_check
+      failed_when: false
+      changed_when: false
+      become_user: vagrant
 
     - name: Delete old Flannel DaemonSet if it exists
       command: kubectl delete daemonset kube-flannel-ds -n kube-flannel
-      ignore_errors: yes
+      when: flannel_check.rc == 0
       become_user: vagrant
 
     - name: Apply Flannel network plugin

@@ -7,28 +7,28 @@
     metallb_version: v0.14.9
     metallb_manifest: >-
       https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
-    kubeconfig: /home/vagrant/.kube/config              # already created in ctrl.yml
-    pool_range: 192.168.56.80-192.168.56.89             # outside our node range
+    kubeconfig: /home/vagrant/.kube/config # already created in ctrl.yml
+    pool_range: 192.168.56.80-192.168.56.89 # outside our node range
     pool_name: default-address-pool
     metallb_ns: metallb-system
-    
+
     # step 21
     ingress_repo: https://kubernetes.github.io/ingress-nginx
     ingress_ns: ingress-nginx
     ingress_release: ingress-nginx
-    ingress_lb_ip: ""   # set IP to use, or leave empty for auto-assign
+    ingress_lb_ip: "" # set IP to use, or leave empty for auto-assign
 
     # step 22
-    dash_repo: https://kubernetes.github.io/dashboard        # upstream Helm repo
+    dash_repo: https://kubernetes.github.io/dashboard # upstream Helm repo
     dash_ns: kubernetes-dashboard
     dash_release: kubernetes-dashboard
-    dash_ingress_host: dashboard.local                       # adjust to your DNS
+    dash_ingress_host: dashboard.local # adjust to your DNS
     dash_sa_name: admin-user
     token_cmd: "kubectl -n {{ dash_ns }} create token {{ dash_sa_name }}"
 
-# ────────────────────────────────────────────────────────────────────────────────
-# Step 20: Install MetalLB + IPAddressPool + L2Advertisement
-# ────────────────────────────────────────────────────────────────────────────────
+  # ────────────────────────────────────────────────────────────────────────────────
+  # Step 20: Install MetalLB + IPAddressPool + L2Advertisement
+  # ────────────────────────────────────────────────────────────────────────────────
 
   pre_tasks:
     - name: Ensure Python Kubernetes client is present # Needed for IPAddressPool..
@@ -42,7 +42,7 @@
       become_user: vagrant
       ansible.builtin.command:
         cmd: kubectl apply -f {{ metallb_manifest }}
-      changed_when: false                                # idempotent
+      changed_when: false # idempotent
       args:
         creates: /var/lib/metallb-install.done
       register: _unused
@@ -74,8 +74,8 @@
           spec:
             addresses:
               - "{{ pool_range }}"
-            autoAssign: true                       # omit to accept default
-            avoidBuggyIPs: true                    # optional; skips .0 /.255  
+            autoAssign: true # omit to accept default
+            avoidBuggyIPs: true # optional; skips .0 /.255
 
     - name: Advertise the pool (L2 mode)
       become_user: vagrant
@@ -92,9 +92,9 @@
             ipAddressPools:
               - "{{ pool_name }}"
 
-# ────────────────────────────────────────────────────────────────────────────────
-# Step 21 – install the Nginx Ingress Controller with Helm
-# ────────────────────────────────────────────────────────────────────────────────
+    # ────────────────────────────────────────────────────────────────────────────────
+    # Step 21 – install the Nginx Ingress Controller with Helm
+    # ────────────────────────────────────────────────────────────────────────────────
 
     - name: Add the ingress-nginx Helm repo
       become_user: vagrant
@@ -102,7 +102,7 @@
         cmd: helm repo add ingress-nginx {{ ingress_repo }}
       changed_when: "'already exists' not in _add_repo.stderr"
       register: _add_repo
-      failed_when: false                   # repo add is idempotent
+      failed_when: false # repo add is idempotent
 
     - name: Refresh the local Helm chart cache
       become_user: vagrant
@@ -136,7 +136,6 @@
           kubectl -n {{ ingress_ns }} wait
           --for=condition=available deployment/{{ ingress_release }}-controller
           --timeout=120s
-
 
     # ────────────────────────────────────────────────────────────────────────────────
     # Step 22.b – install the Kubernetes Dashboard
@@ -173,7 +172,7 @@
       become_user: vagrant
       ansible.builtin.command: >
         kubectl -n {{ dash_ns }} wait --for=condition=available
-        deployment --all --timeout=30s
+        deployment --all --timeout=120s
 
     # ── RBAC for admin login ───────────────────────────────────────────────────
     - name: Create admin ServiceAccount
@@ -230,7 +229,7 @@
         privatekey_path: /etc/kubernetes/dashboard.key
         provider: selfsigned
       run_once: true
-    
+
     - name: Slurp Dashboard certificate from remote
       ansible.builtin.slurp:
         src: /etc/kubernetes/dashboard.crt
@@ -277,8 +276,8 @@
           spec:
             ingressClassName: nginx
             tls:
-            - hosts: [ "{{ dash_ingress_host }}" ]
-              secretName: dashboard-selfsigned
+              - hosts: ["{{ dash_ingress_host }}"]
+                secretName: dashboard-selfsigned
             rules:
               - host: "{{ dash_ingress_host }}"
                 http:
@@ -290,5 +289,5 @@
                           # name: "{{ dash_release }}"
                           name: "{{ dash_release }}-kong-proxy"
                           port:
-                            number: 443   # dashboard service exposes HTTPS
+                            number: 443 # dashboard service exposes HTTPS
 

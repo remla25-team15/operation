@@ -5,21 +5,25 @@
 Simply run the following commands to manage the VMs:
 
 To start the VMs, run:
+
 ```zsh
 vagrant up
 ```
 
 To destroy the VMs and remove all associated resources, run:
+
 ```zsh
 vagrant destroy
 ```
 
 To provision the VMs (e.g., apply configuration changes), run:
+
 ```zsh
 vagrant provision
 ```
 
 For pausing/resuming a VM use :
+
 ```zsh
 vagrant suspend / vagrant resume
 ```
@@ -80,21 +84,32 @@ If you want to SSH into a VM, you can do it by running the command:
 ssh -i ~/.ssh/ansible-provision-key vagrant@192.168.56.<HOST>
 ```
 
-> Replace <HOST> with the actual host you want to SSH into, e.g. 100 for ctrl.
+> Replace <HOST> with the actual host you want to SSH into, e.g. 99 for ctrl.
 
 ## Accessing the Kubernetes Cluster from the Host
-First step is not necessary as the `ctrl.yml` is executed during `vagrant up`.
+
+> We provision everything in the Vagrantfile
+
+TODO: Improve this block to only explain what is needed to be done because we don't need to additionally
+provision anything.
+
+> First step is not necessary as the `ctrl.yml` is executed during `vagrant up`.
 
 Set up the kubernetes controller inside the VM environment.
+
 ```zsh
 ansible-playbook -i inventory.cfg ctrl.yml
 ```
 
-To manage your kubernetes cluster from the host machine copy the kubeconfig file from the controller VM 
+TODO: The preceeding block can be removed
+
+To manage your kubernetes cluster from the host machine copy the kubeconfig file from the controller VM
 and export it for kubectl to use
+
 ```zsh
  vagrant ssh ctrl -c "sudo cat /etc/kubernetes/admin.conf" > kubeconfig
 ```
+
 ```zsh
 export KUBECONFIG=$(pwd)/kubeconfig
 ```
@@ -102,25 +117,32 @@ export KUBECONFIG=$(pwd)/kubeconfig
 Test access
 
 Check if the controller exists and is ready
+
 ```zsh
 kubectl get nodes
 ```
 
 check if the pod flannel got created
+
 ```zsh
 kubectl get pods -A
 ```
 
 ## finalizing the cluster
 
-> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because.. 
+> TODO: Is this necessary? -> we can't run the playbook with `ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml` because..
 
-Run the finalization notebook with:
+> We run the provisioning in vagrantfile, so no need to do this either.
+> Run the finalization notebook with:
+
 ```
 ansible-playbook -u vagrant -i inventory.cfg finalization.yml
 ```
 
+TODO: Preceeding block can be removed.
+
 Then check if the namespaced CRDs run:
+
 ```
 kubectl get ipaddresspools.metallb.io -n metallb-system
 kubectl get l2advertisements.metallb.io -n metallb-system
@@ -130,6 +152,7 @@ kubectl -n kubernetes-dashboard get ingress
 ```
 
 ### Kubernetes dashboard documentation
+
 You do not need to visit any external links — this section simply references the documentation that was used as a source. You may skip to the next skip.
 
 To deploy the Kubernetes Dashboard, the following documentation has been consulted:
@@ -139,14 +162,19 @@ To access the Kubernetes Dashboard, you need a bearer token. The recommended way
 [Creating a Sample User](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md)
 
 #### Generating a Bearer Token
+
 To access the Kubernetes Dashboard, you need a bearer token. You can generate it by running the following command:
-```kubectl -n kubernetes-dashboard create token admin-user```
+
+```zsh
+kubectl -n kubernetes-dashboard create token admin-user
+```
 
 Once the token is created, you can use it to log in to the Dashboard.
 
 #### Enabling Access to the Dashboard
 
 1. Grab the external IP that MetalLB assigned to your ingress-nginx controller:
+
 ```
 export DASHBOARD_IP=$(
   kubectl get svc ingress-nginx-controller \
@@ -156,12 +184,12 @@ export DASHBOARD_IP=$(
 ```
 
 2. Append the mapping to /etc/hosts so dashboard.local resolves to that IP:
+
 ```
 sudo sh -c "echo \"${DASHBOARD_IP} dashboard.local\" >> /etc/hosts"
 ```
 
 3. Verify with: `grep dashboard.local /etc/hosts`
-
 
 > OR Run the following command to forward the Dashboard service to your local machine:
 
