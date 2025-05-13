@@ -88,11 +88,6 @@ ssh -i ~/.ssh/ansible-provision-key vagrant@192.168.56.<HOST>
 
 ## Accessing the Kubernetes Cluster from the Host
 
-> We provision everything in the Vagrantfile
-
-TODO: Improve this block to only explain what is needed to be done because we don't need to additionally
-provision anything.
-
 > First step is not necessary as the `ctrl.yml` is executed during `vagrant up`.
 
 Set up the kubernetes controller inside the VM environment.
@@ -100,8 +95,6 @@ Set up the kubernetes controller inside the VM environment.
 ```zsh
 ansible-playbook -i inventory.cfg ctrl.yml
 ```
-
-TODO: The preceeding block can be removed
 
 To manage your kubernetes cluster from the host machine copy the kubeconfig file from the controller VM
 and export it for kubectl to use

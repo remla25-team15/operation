@@ -67,11 +67,6 @@ Vagrant.configure("2") do |config|
         base_ip: BASE_IP
       }
     end
-
-    ctrl.vm.provision :ansible do |a|
-      a.compatibility_mode = "2.0"
-      a.playbook = "finalization.yml"
-    end
   end
 
   # Worker nodes
