@@ -7,5 +7,5 @@
 .DS_Store
 
 *.vagrant
-/provisioning/kubeconfig
-/provisioning/kube-flannel.yml
+**/kubeconfig
+**/kube-flannel.yml
