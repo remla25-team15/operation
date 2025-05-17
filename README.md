@@ -48,7 +48,7 @@ After provisioning is successful, you need to add the kubernetes dashboard IP to
 To do this, you can run:
 
 ```zsh
-./scripts/update-dashboard-hosts.sh
+./scripts/update-hosts.sh
 ```
 
 The Dashboard will then be accessible at: [https://dashboard.local/](https://dashboard.local/)
