@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-frontend-config
+data:
+  flask_env: "production" # Replace with Helm: {{ .Values.env.FLASK_ENV }}
+  host: "0.0.0.0" # Replace with Helm: {{ .Values.appFrontend.hostIP }}
+  name: "app-frontend" # Replace with Helm: {{ .Values.appFrontend.host }}
+  port: "3000" # Replace with Helm: {{ .Values.appFrontend.port }}
+  app_service_url: "http://app-service" # Replace with Helm: "http://{{ .Values.appService.host }}"
