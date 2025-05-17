@@ -9,6 +9,13 @@ NC='\033[0m'
 set -e
 
 SCRIPTS_DIR="./scripts"
+PROVISION_ARG=""
+
+# Check if --provision argument was passed
+if [[ "$1" == "--provision" ]]; then
+    PROVISION_ARG="--provision"
+fi
+
 
 function cleanup() {
     echo -e "\n${YELLOW}You pressed Ctrl+C.${NC}"
@@ -39,7 +46,7 @@ function cleanup() {
 trap cleanup INT TERM
 
 echo -e "${BLUE}Starting provisioning...${NC}"
-bash "${SCRIPTS_DIR}/run-provisioning.sh" || {
+bash "${SCRIPTS_DIR}/run-provisioning.sh" $PROVISION_ARG || {
     echo -e "${RED}Provisioning failed. Exiting.${NC}"
     exit 1
 }

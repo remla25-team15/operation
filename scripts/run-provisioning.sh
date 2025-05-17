@@ -8,12 +8,21 @@ NC='\033[0m'
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
+PROVISION_FLAG=""
+if [[ "$1" == "--provisioning" ]]; then
+  PROVISION_FLAG="--provision"
+fi
+
 # Step 1: Navigate to the provisioning directory
 cd provisioning || { echo -e "${RED}Directory 'provisioning' not found...${NC}"; exit 1; }
 
 # Step 2: Start Vagrant and wait for it to complete
 echo "Starting Vagrant..."
-vagrant up || { echo -e "${RED}Vagrant up failed${NC}"; exit 1; }
+if [ -n "$PROVISION_FLAG" ]; then
+  vagrant up $PROVISION_FLAG || { echo -e "${RED}Vagrant up failed${NC}"; exit 1; }
+else
+  vagrant up || { echo -e "${RED}Vagrant up failed${NC}"; exit 1; }
+fi
 
 # Step 3: Wait for Ansible ping to succeed for all nodes
 echo "Waiting for Ansible ping to succeed on all nodes..."
