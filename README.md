@@ -6,7 +6,10 @@ To provision, orchestrate, and run the application using a Kubernetes deployment
 ./scripts/run-all.sh
 ```
 
+If you're running it for the first time, the model-service will download the models to cache them locally.
 It takes a while so you can go grab a cup of coffee or something... :coffee:
+
+The next invocations should be faster though.
 
 Unfortunately, all the scripts are bash scripts so you will have to run them in bash (or z shell).
 If you're using Windows, you can still download and use bash (maybe try using git bash).

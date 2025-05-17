@@ -13,7 +13,7 @@ export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
 K8S_DIR="./k8s"
 NAMESPACE="default"  
-TIMEOUT=180
+TIMEOUT=300
 INTERVAL=5
 
 if [ ! -d "$K8S_DIR" ]; then
