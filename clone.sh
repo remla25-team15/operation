@@ -9,7 +9,7 @@ REPOS=("app-frontend" "app-service" "model-service" "lib-ml" "model-training" "l
 # Clone each repository
 for REPO in "${REPOS[@]}"; do
     echo "Cloning $REPO..."
-    git clone "${ORG_URL}/${REPO}.git"
+    git clone "${ORG_URL}/${REPO}.git" ..
 done
 
 echo "All repositories cloned successfully."
