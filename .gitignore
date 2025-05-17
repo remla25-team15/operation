@@ -9,3 +9,5 @@
 *.vagrant
 **/kubeconfig
 **/kube-flannel.yml
+
+**/*.pkl
