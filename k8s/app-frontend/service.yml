@@ -3,12 +3,12 @@ kind: Service
 metadata:
   name: app-frontend-service
   labels:
-    app: app-frontend
+    app: app-frontend-serv
 spec:
   selector:
     app: app-frontend
   ports:
-    - name: http
+    - name: web
       protocol: TCP
       port: 80
       targetPort: 3000 # Replace with Helm: {{ .Values.appFrontend.port }}

@@ -2,17 +2,17 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: mymonitor
-  namespace: default
+  namespace: monitoring
   labels:
     release: myprom
 spec:
-  selector:
-    matchLabels:
-      app: app-frontend
   namespaceSelector:
     matchNames:
       - default
+  selector:
+    matchLabels:
+      app: app-frontend-serv
   endpoints:
-  - port: http
+  - interval: 1s
+    port: web
     path: /metrics
-    interval: 1s
