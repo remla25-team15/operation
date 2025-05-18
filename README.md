@@ -6,6 +6,26 @@ To provision, orchestrate, and run the application using a Kubernetes deployment
 ./scripts/run-all.sh
 ```
 
+Run this kubeconfig to connect to the correct cluster IP
+```
+export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
+```
+
+To install a helm chart, you can run:
+```
+helm install myapp ./helm/myapp-chart
+```
+
+To see all helm charts run the following:
+```
+helm list
+```
+
+To switch between charts run:
+```
+helm status <chart-name>
+```
+
 If you're running it for the first time, the model-service will download the models to cache them locally.
 It takes a while so you can go grab a cup of coffee or something... :coffee:
 
