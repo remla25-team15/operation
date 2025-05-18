@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-app-frontend-config
+data:
+  flask_env: {{ .Values.env.FLASK_ENV | quote }}
+  host: {{ .Values.appFrontend.hostIP | quote }}
+  name: "app-frontend"
+  port: {{ .Values.appFrontend.port | quote }}
+  app_service_url: "http://{{ .Release.Name }}-app-service"

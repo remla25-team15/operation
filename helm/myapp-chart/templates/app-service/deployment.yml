@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app-service-deployment
+  labels:
+    app: app-service
+spec:
+  replicas: {{ .Values.appService.replicaCount }}
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+    spec:
+      containers:
+        - name: app-service
+          image: "{{ .Values.appService.image.repository }}:{{ .Values.appService.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.appService.port }}
+          env:
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-service-config
+                  key: flask_env
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-service-config
+                  key: name
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-service-config
+                  key: port
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-service-config
+                  key: host
+            - name: MODEL_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-service-config
+                  key: model_service_url

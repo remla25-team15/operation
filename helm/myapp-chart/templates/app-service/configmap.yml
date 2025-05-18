@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-app-service-config
+data:
+  flask_env: {{ .Values.env.FLASK_ENV | quote }}
+  host: {{ .Values.appService.hostIP | quote }}
+  name: {{ .Values.appService.host | quote }}
+  port: {{ .Values.appService.port | quote }}
+  model_service_url: "http://{{ .Values.modelService.host }}"

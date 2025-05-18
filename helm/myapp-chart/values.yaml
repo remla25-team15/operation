@@ -1,0 +1,140 @@
+# Default values for myapp-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Chart name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Replica count for default deployment
+replicaCount: 1
+
+# Container image configuration
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: ""
+
+# Pull secrets for private images
+imagePullSecrets: []
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+# Pod-level security context
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# Container-level security context
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Liveness and readiness probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Kubernetes service configuration
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  host: ""  # will default to {{ .Release.Name }}.app.local if left empty
+
+# Resource requests and limits
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volume configuration
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+# Node scheduling
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Application-specific configurations
+
+appFrontend:
+  port: 3000
+  replicaCount: 2
+  image:
+    repository: ghcr.io/remla25-team15/app-frontend
+    tag: "v1.0.0"
+  hostIP: "0.0.0.0"
+  configMapName: "app-frontend-config"
+  appServiceHost: "app-service"
+  servicePort: 80
+
+appService:
+  port: 5000
+  replicaCount: 3
+  image:
+    repository: ghcr.io/remla25-team15/app-service
+    tag: "v1.0.0"
+  hostIP: "0.0.0.0"
+  host: "app-service-config"
+  servicePort: 80
+
+modelService:
+  port: 5001
+  replicaCount: 3
+  image:
+    repository: ghcr.io/remla25-team15/model-service
+    tag: "v1.0.0"
+  hostIP: "0.0.0.0"
+  secrets:
+    MODEL_RESOURCE_URI: aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xRjZpLS1MNTBwVm03cDBkY0FwR0loZXBDN0NvdkMzTGEvdmlldz91c3A9c2hhcmluZw==
+    CV_URI: aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xNGJDWnUybU1VXzkwbmdaTERYeVFoOWZRQ2JxRFcwRS0vdmlldz91c3A9c2hhcmluZw==
+  host: "model-service"
+  servicePort: 80
+
+# Environment variables shared across services
+env:
+  FLASK_ENV: "production"
