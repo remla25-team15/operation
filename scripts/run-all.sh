@@ -51,12 +51,6 @@ bash "${SCRIPTS_DIR}/run-provisioning.sh" $PROVISION_ARG || {
     exit 1
 }
 
-#echo -e "${BLUE}Applying Kubernetes manifests...${NC}"
-#bash "${SCRIPTS_DIR}/run-manifests.sh" || {
-#    echo -e "${RED}Failed to apply manifests. Exiting.${NC}"
-#    exit 1
-#}
-
 # Set KUBECONFIG for this session
 export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
