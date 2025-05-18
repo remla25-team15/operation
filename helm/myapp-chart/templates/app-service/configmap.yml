@@ -7,4 +7,4 @@ data:
   host: {{ .Values.appService.hostIP | quote }}
   name: {{ .Values.appService.host | quote }}
   port: {{ .Values.appService.port | quote }}
-  model_service_url: "http://{{ .Values.modelService.host }}"
+  model_service_url: "http://{{ .Release.Name }}-{{ .Values.modelService.host }}"

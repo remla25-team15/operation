@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.className | default "nginx" }}
   rules:
-    - host: {{ .Values.ingress.host | default (printf "%s.app.local" .Release.Name) }}
+    - host: app.local #{{ .Values.ingress.host | default (printf "%s.app.local" .Release.Name) }}
       http:
         paths:
           - path: /

@@ -30,11 +30,13 @@ podAnnotations: {}
 podLabels: {}
 
 # Pod-level security context
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
 # Container-level security context
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -63,10 +65,11 @@ ingress:
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-  host: ""  # will default to {{ .Release.Name }}.app.local if left empty
+  host: "" # will default to {{ .Release.Name }}.app.local if left empty
 
 # Resource requests and limits
-resources: {}
+resources:
+  {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -119,7 +122,7 @@ appService:
     repository: ghcr.io/remla25-team15/app-service
     tag: "v1.0.0"
   hostIP: "0.0.0.0"
-  host: "app-service-config"
+  host: "app-service"
   servicePort: 80
 
 modelService:
@@ -138,3 +141,4 @@ modelService:
 # Environment variables shared across services
 env:
   FLASK_ENV: "production"
+
