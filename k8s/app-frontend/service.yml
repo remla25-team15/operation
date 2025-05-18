@@ -8,7 +8,8 @@ spec:
   selector:
     app: app-frontend
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 3000 # Replace with Helm: {{ .Values.appFrontend.port }}
   type: ClusterIP
