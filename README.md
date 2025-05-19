@@ -41,6 +41,10 @@ It is possible to query:
 
 The metrics are also assesible by (http://app.local/metrics)
 
+### Alerts
+PrometheusRule - "HighFrontendRequestRate" exists and you can check that it can be triggered in Prometheus UI [http://localhost:9090](http://localhost:9090).
+The alert notification functionality is still under development.
+
 # Grafana Dashboard: Custom Metrics Visualization
 
 ## Manual Installation (Basic/Sufficient)
