@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.prometheusRuleRequests.name }}
+  namespace: {{.Values.prometheus.namespace}}
+  labels:
+    release: {{ .Values.prometheus.release }}
+spec:
+  groups:
+    - name: {{ .Values.prometheusRuleRequests.groupName }}
+      rules:
+        - alert: {{ .Values.prometheusRuleRequests.alertName }}
+          expr: {{ .Values.prometheusRuleRequests.expr | quote }}
+          labels:
+            severity: {{ .Values.prometheusRuleRequests.severity }}
+          annotations:
+            summary: {{ .Values.prometheusRuleRequests.summary | quote }}
+            description: {{ .Values.prometheusRuleRequests.description | quote }}
