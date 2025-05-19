@@ -218,3 +218,14 @@ only app-frontend is accessible from host in production. These docs can be viewe
 
 app-service: [http://localhost:5000/apidocs](http://localhost:5000/apidocs)
 model-service: [http://localhost:5001/apidocs](http://localhost:5001/apidocs)
+
+
+## Prometheus
+
+To access Prometheus UI and Query metrics you can port forward:
+```zsh
+kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 9090
+```
+Then go to [http://localhost:9090](http://localhost:9090).
+
+The metrics are assesible by (http://app.local/metrics)

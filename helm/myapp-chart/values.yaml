@@ -109,7 +109,7 @@ appFrontend:
   replicaCount: 2
   image:
     repository: ghcr.io/remla25-team15/app-frontend
-    tag: "v1.0.0"
+    tag: "v1.1.0"
   hostIP: "0.0.0.0"
   configMapName: "app-frontend-config"
   appServiceHost: "app-service"
@@ -137,6 +137,28 @@ modelService:
     CV_URI: aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xNGJDWnUybU1VXzkwbmdaTERYeVFoOWZRQ2JxRFcwRS0vdmlldz91c3A9c2hhcmluZw==
   host: "model-service"
   servicePort: 80
+
+prometheus:
+  namespace: "monitoring"
+  slack_channel: "new-channel"
+  api_url: "example"
+  release: myprom
+
+serviceMonitor:
+  targetNamespace: default
+  targetApp: app-frontend-serv
+  interval: 1s
+  port: web
+  path: /metrics
+
+prometheusRuleRequests:
+  name: frontend-request-alerts
+  groupName: frontend.rules
+  alertName: HighFrontendRequestRate
+  expr: rate(frontend_prediction_requests_total[10s]) > 1
+  severity: warning
+  summary: High number of frontend prediction requests
+  description: The frontend_prediction_requests_total counter has exceeded 300.
 
 # Environment variables shared across services
 env:

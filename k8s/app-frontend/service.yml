@@ -3,12 +3,13 @@ kind: Service
 metadata:
   name: app-frontend-service
   labels:
-    app: app-frontend
+    app: app-frontend-serv
 spec:
   selector:
     app: app-frontend
   ports:
-    - protocol: TCP
+    - name: web
+      protocol: TCP
       port: 80
       targetPort: 3000 # Replace with Helm: {{ .Values.appFrontend.port }}
   type: ClusterIP
