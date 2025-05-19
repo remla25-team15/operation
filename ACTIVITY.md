@@ -91,8 +91,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Liwia: --
 
-- created:
-- approved:
+- created PR: https://github.com/remla25-team15/app-service/pull/5
+- approved PR: https://github.com/remla25-team15/app-frontend/pull/10
 
 --Aiman--
 
