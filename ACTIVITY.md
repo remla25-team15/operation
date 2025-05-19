@@ -74,6 +74,7 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 - created PR: https://github.com/remla25-team15/operation/pull/32
 - approved PR: https://github.com/remla25-team15/operation/pull/29
+- approved PR: https://github.com/remla25-team15/operation/pull/33
 
 -- Dmytro: --
 
