@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-app-frontend-service
+  labels:
+    app: app-frontend
+spec:
+  selector:
+    app: app-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.appFrontend.port }}
+  type: ClusterIP

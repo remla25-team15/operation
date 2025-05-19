@@ -51,9 +51,12 @@ bash "${SCRIPTS_DIR}/run-provisioning.sh" $PROVISION_ARG || {
     exit 1
 }
 
-echo -e "${BLUE}Applying Kubernetes manifests...${NC}"
-bash "${SCRIPTS_DIR}/run-manifests.sh" || {
-    echo -e "${RED}Failed to apply manifests. Exiting.${NC}"
+# Set KUBECONFIG for this session
+export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
+
+echo -e "${BLUE}Deploying application with Helm...${NC}"
+helm upgrade --install myapp ./helm/myapp-chart || {
+    echo -e "${RED}Helm deployment failed. Exiting.${NC}"
     exit 1
 }
 
@@ -62,9 +65,6 @@ bash "${SCRIPTS_DIR}/update-hosts.sh" || {
     echo -e "${RED}Failed to update hosts. Exiting.${NC}"
     exit 1
 }
-
-# Set KUBECONFIG for this session
-export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
 echo -e "${YELLOW}Fetching Kubernetes Dashboard token...${NC}"
 DASHBOARD_NS="kubernetes-dashboard"
