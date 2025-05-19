@@ -7,4 +7,4 @@ data:
   host: {{ .Values.appFrontend.hostIP | quote }}
   name: "app-frontend"
   port: {{ .Values.appFrontend.port | quote }}
-  app_service_url: "http://{{ .Release.Name }}-app-service"
+  app_service_url: "http://{{ .Release.Name }}-{{ .Values.appService.host }}"
