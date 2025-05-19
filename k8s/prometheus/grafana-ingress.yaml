@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # If you have cert-manager installed and want HTTPS, uncomment the following:
+    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod" # Or your cluster issuer
+spec:
+  # If using TLS:
+  # tls:
+  # - hosts:
+  #   - grafana.local # Or your desired hostname
+  #   secretName: grafana-tls # cert-manager will create this if acme is true
+  rules:
+  - host: grafana.local # Or your desired hostname
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myprom-grafana # Assumes this is your Grafana service name
+            port:
+              number: 80 # Assumes Grafana service listens on port 80

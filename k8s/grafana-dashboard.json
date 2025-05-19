@@ -1,0 +1,75 @@
+{
+  "id": null,
+  "uid": "custom-dashboard",
+  "title": "Custom App Metrics",
+  "tags": ["app", "custom"],
+  "timezone": "browser",
+  "schemaVersion": 30,
+  "version": 1,
+  "refresh": "5s",
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "instance",
+        "label": "Instance",
+        "datasource": "Prometheus",
+        "query": "label_values(frontend_prediction_requests_total, instance)",
+        "includeAll": true,
+        "multi": true,
+        "options": [],
+        "current": {
+          "text": "All",
+          "value": ["$__all"]
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Request Rate",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(frontend_prediction_requests_total{$instance}[${__interval}])",
+          "legendFormat": "{{instance}}",
+          "intervalFactor": 2
+        }
+      ],
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}
+    },
+    {
+      "type": "stat",
+      "title": "Current Requests per ${__interval}",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "increase(frontend_prediction_requests_total{$instance}[${__interval}])"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["last"]}},
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4}
+    },
+    {
+      "type": "gauge",
+      "title": "Request Rate Gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(frontend_prediction_requests_total{$instance}[${__interval}]))"
+        }
+      ],
+      "gridPos": {"x": 12, "y": 4, "w": 6, "h": 4},
+      "options": {
+        "minValue": 0,
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  }
+}
