@@ -66,8 +66,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 # A3:
 
 -- Alessandro: --
-- created PR: 
-- approved PR: 
+- created PR: https://github.com/remla25-team15/operation/pull/32
+- approved PR: https://github.com/remla25-team15/operation/pull/29
 -
 
 -- Dmytro: --
