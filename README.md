@@ -10,7 +10,65 @@ To provision, orchestrate, and run the application using a Kubernetes deployment
 ./scripts/run-all.sh
 ```
 
-If you're running it for the first time, the model-service will download the models to **cache them locally**.
+Now, the application should be accessible at [http://app.local/](http://app.local/)
+
+If the script exits because of timeout, you can simply run it again, maybe using the `--provision` flag.
+
+```zsh
+./scripts/run-all.sh --provision
+```
+
+It should pick up from where it left off the last time.
+Invoking the script again and again shouldn't cause any problems since most of the provisioning is idempotent.
+
+If you're running it for the first time, the model-service will download the models to cache them locally in a shared
+folder `provisioning/shared/` which is shared across all VMs and mounted in the container. This is persistent so
+subsequent invocations will use this rather than downloading the model again whenever the container is re-created.
+
+But, it takes a while so you can go grab a cup of coffee or something... :coffee:
+
+The next invocations should be faster.
+
+Unfortunately, all the scripts are bash scripts so you will have to run them in bash (or z shell).
+If you're using Windows, you can still download and use bash (maybe try using git bash).
+If you're stuck with Powershell... helaas pindakaas...
+
+The script should work correctly and you do not need to run any commands manually but if you want to do so, you can read further.
+
+First, for managing kubernetes cluster from the host machine and running any `kubectl` commands,
+you need to copy the kubernetes configuration from the controller node to the host machine and set the `KUBECONFIG` variable to point to it.
+
+The following command should help with it:
+
+```zsh
+ cd provisioning/
+ vagrant ssh ctrl -c "sudo cat /etc/kubernetes/admin.conf" > kubeconfig
+ export KUBECONFIG=$(pwd)/kubeconfig
+ cd ..
+```
+
+> You need to make sure to set this variable for every shell invocation, i.e. whenever you open a new shell, please make sure to set this
+> before you try to run `kubectl`.
+
+To install a helm chart, you can run:
+
+```zsh
+helm install myapp ./helm/myapp-chart
+```
+
+To see all helm charts run the following:
+
+```zsh
+helm list
+```
+
+To switch between charts run:
+
+```zsh
+helm status <chart-name>
+```
+
+If you're running it for the first time, the model-service will download the models to cache them locally.
 It takes a while so you can go grab a cup of coffee or something... :coffee:
 
 The next invocations should be faster though.
@@ -92,7 +150,7 @@ If you update the dashboard, regenerate both the JSON and ConfigMap files and re
 
 This project is managed from the `operation/` directory using Docker Compose. It orchestrates multiple services across repositories.
 
-# Running in Production
+## Running in Production using Docker compose
 
 To run the application using prebuilt images (from GitHub Container Registry):
 
@@ -106,6 +164,8 @@ This uses `docker-compose.yml` only and does not mount local code.
 The application should be accessible at [http://localhost:8080](http://localhost:8080)
 
 ## Provisioning Setup
+
+> Note: We assume you have set up your SSH correctly, if not, please refer to the README in the `provisioning/` [here](https://github.com/remla25-team15/operation/tree/main/provisioning).
 
 You can set up the VMs and provision them using the `scripts/run-provisioning.sh` script.
 
@@ -130,6 +190,8 @@ To access the Dashboard, you need a bearer token. You can generate it by running
 kubectl -n kubernetes-dashboard create token admin-user
 ```
 
+> If you see errors regarding `kubectl`, please make sure you've set the KUBECONFIG variable correctly. (See README in `provisioning/`)
+
 Copy and paste this token to access the dashboard.
 
 #### More info:
@@ -139,7 +201,11 @@ corresponding README can be found [here](https://github.com/remla25-team15/opera
 
 > Note: To do provisioning manually, please make sure you `cd` into `provisioning/` folder
 
-## Kubernetes Setup
+## Kubernetes Setup (TODO: Add a helm section)
+
+> NOTE: This section contains the manifests inside `k8s/` which is not used anymore because we are using helm, refer the "How to run?" section
+> if you want to run the application using helm.
+> The `k8s/` manifests will be removed soon to be replaced by helm.
 
 After you're done provisioning the VMs, you can, again, run a simple script to deploy all the kubernetes manifests:
 

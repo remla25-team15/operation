@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-model-service-config
+data:
+  flask_env: {{ .Values.env.FLASK_ENV | quote }}
+  name: {{ .Values.modelService.host | quote }}
+  port: {{ .Values.modelService.port | quote }}
+  host: {{ .Values.modelService.hostIP | quote }}
