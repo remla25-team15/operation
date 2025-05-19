@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app-frontend-deployment
+  labels:
+    app: app-frontend
+spec:
+  replicas: {{ .Values.appFrontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: app-frontend
+  template:
+    metadata:
+      labels:
+        app: app-frontend
+    spec:
+      containers:
+        - name: app-frontend
+          image: "{{ .Values.appFrontend.image.repository }}:{{ .Values.appFrontend.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.appFrontend.port }}
+          env:
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-frontend-config
+                  key: flask_env
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-frontend-config
+                  key: name
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-frontend-config
+                  key: port
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-frontend-config
+                  key: host
+            - name: APP_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-app-frontend-config
+                  key: app_service_url
