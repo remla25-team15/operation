@@ -19,6 +19,8 @@ Unfortunately, all the scripts are bash scripts so you will have to run them in 
 If you're using Windows, you can still download and use bash (maybe try using git bash).
 If you're stuck with Powershell... helaas pindakaas...
 
+> **Note:** In this version, Grafana is not functional in the Kubernetes deployment via Helm due to credential issues when accessing the dashboard. Since the submission meets all requirements except for the Grafana integration, Grafana has been temporarily excluded and will be included in a future update.
+
 ## Monitoring
 ### Prometheus
 
