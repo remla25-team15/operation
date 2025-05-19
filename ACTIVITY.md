@@ -37,6 +37,7 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 # A2:
 
 -- Alessandro: --
+
 - created PR: https://github.com/remla25-team15/operation/pull/18
 - approved PR: https://github.com/remla25-team15/operation/pull/9
 - created issues: https://github.com/remla25-team15/operation/issues?q=is%3Aissue%20state%3Aclosed
@@ -70,8 +71,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 # A3:
 
 -- Alessandro: --
-- created PR: 
-- approved PR: 
+
+- created PR:
+- approved PR:
 
 -- Dmytro: --
 
@@ -81,19 +83,19 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Shreyas: --
 
-- created PR: 
-- created PR: 
-- created PR: 
+- created PR: https://github.com/remla25-team15/operation/pull/28#event-17699962389
 
-- approved PR: 
-- approved PR: 
+- approved PR: https://github.com/remla25-team15/operation/pull/30
+- approved PR: https://github.com/remla25-team15/app-frontend/pull/10#event-17721846109
+- approved PR: https://github.com/remla25-team15/app-service/pull/5#event-17721739296 (related to A1)
 
 -- Liwia: --
 
-- created: 
-- approved: 
+- created:
+- approved:
 
 --Aiman--
 
-- created PR: 
-- approved PR: 
+- created PR:
+- approved PR:
+
