@@ -1,4 +1,6 @@
-# A1:
+# Week 2:
+
+## A1:
 
 -- Alessandro: --
 Created PR: https://github.com/remla25-team15/app-frontend/pull/2 \
@@ -34,7 +36,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 - created: https://github.com/remla25-team15/lib-version/pull/2
 - approved: https://github.com/remla25-team15/model-service/pull/1
 
-# A2:
+# Week 3:
+
+## A2:
 
 -- Alessandro: --
 
@@ -68,7 +72,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 - approved PR: https://github.com/remla25-team15/operation/pull/19
 - created issue: https://github.com/remla25-team15/operation/issues/20
 
-# A3:
+# Week 4:
+
+## A3:
 
 -- Alessandro: --
 
@@ -98,4 +104,3 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 - created PR: https://github.com/remla25-team15/operation/pull/29
 - approved PR: https://github.com/remla25-team15/operation/pull/28
-
