@@ -44,12 +44,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-model-service-secrets
-                  key: MODEL_RESOURCE_URI
+                  key: model_resource_uri
             - name: CV_URI
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-model-service-secrets
-                  key: CV_URI
+                  key: cv_uri
+            - name: MODEL_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: model_version
           volumeMounts:
             - name: model-cache
               mountPath: /models
