@@ -7,3 +7,4 @@ data:
   name: {{ .Values.modelService.host | quote }}
   port: {{ .Values.modelService.port | quote }}
   host: {{ .Values.modelService.hostIP | quote }}
+  model_version: {{ .Values.modelService.modelVersion | quote }}

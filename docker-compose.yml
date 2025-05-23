@@ -35,6 +35,7 @@ services:
       - MODEL_RESOURCE_URI=https://drive.google.com/file/d/1F6i--L50pVm7p0dcApGIhepC7CovC3La/view?usp=sharing
       - CV_URI=https://drive.google.com/file/d/14bCZu2mMU_90ngZLDXyQh9fQCbqDW0E-/view?usp=sharing
       - PORT=${MODEL_SERVICE_PORT}
+      - MODEL_VERSION=${MODEL_VERSION}
     volumes:
       - model-cache:/models
     restart: unless-stopped
