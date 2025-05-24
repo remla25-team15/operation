@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grafana
+  name: {{ .Release.Name }}-grafana-deployment
   labels:
     app: grafana
 spec:
-  replicas: 1
+  replicas: {{ .Values.grafana.replicaCount }}
   selector:
     matchLabels:
       app: grafana
@@ -16,23 +16,28 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: grafana/grafana:10.0.0
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
           ports:
-            - containerPort: 3000
+            - containerPort: {{ .Values.grafana.port }}
           volumeMounts:
             - name: grafana-dashboard-vol
               mountPath: /var/lib/grafana/dashboards
             - name: grafana-provisioning
               mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-datasource-vol
+              mountPath: /etc/grafana/provisioning/datasources
           env:
             - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
-              value: /var/lib/grafana/dashboards/app-custom-metrics.json
+              value: {{ .Values.grafana.env.GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH | quote }}
             - name: GF_PATHS_PROVISIONING
-              value: /etc/grafana/provisioning
+              value: {{ .Values.grafana.env.GF_PATHS_PROVISIONING | quote }}
       volumes:
         - name: grafana-dashboard-vol
           configMap:
-            name: grafana-dashboard-app
+            name: {{ .Release.Name }}-grafana-dashboard-config
         - name: grafana-provisioning
           configMap:
-            name: grafana-dashboard-provisioning
+            name: {{ .Release.Name }}-grafana-dashboard-config
+        - name: grafana-datasource-vol
+          configMap:
+            name: {{ .Release.Name }}-grafana-datasource-config

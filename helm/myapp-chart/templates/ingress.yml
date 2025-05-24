@@ -34,3 +34,13 @@ spec:
                 name: {{ .Release.Name }}-model-service
                 port:
                   number: {{ .Values.modelService.servicePort | default 80 }}
+    - host: grafana.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-grafana
+                port:
+                  number: {{ .Values.grafana.servicePort | default 80 }}

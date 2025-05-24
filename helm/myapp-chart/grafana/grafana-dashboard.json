@@ -97,7 +97,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "10s",
+  "refresh": "1s",
   "schemaVersion": 30,
   "style": "dark",
   "tags": ["app-metrics"],
