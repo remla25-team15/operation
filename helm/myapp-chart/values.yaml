@@ -160,6 +160,17 @@ prometheusRuleRequests:
   summary: High number of frontend prediction requests
   description: The frontend_prediction_requests_total counter has exceeded 300.
 
+grafana:
+  port: 3000 # run in different pods so does not conflict with app frontend
+  replicaCount: 1
+  image:
+    repository: grafana/grafana
+    tag: "10.0.0"
+  servicePort: 80
+  env:
+    GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/app-custom-metrics.json
+    GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+
 # Environment variables shared across services
 env:
   FLASK_ENV: "production"
