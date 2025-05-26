@@ -70,8 +70,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Alessandro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/32
-- approved PR: https://github.com/remla25-team15/operation/pull/29
+- created PR: https://github.com/remla25-team15/operation/pull/32 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/29 (related to A3)
 
 -- Dmytro: --
 
@@ -101,8 +101,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Alessandro: --
 
-- created PR:
-- approved PR:
+- created PR: https://github.com/remla25-team15/model-training/pull/14 (related to A4)
+- created PR: https://github.com/remla25-team15/operation/pull/35 (related to A3)
+- approved PR: https://github.com/remla25-team15/model-training/pull/12 (related to A4)
 
 -- Dmytro: --
 
