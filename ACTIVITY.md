@@ -5,10 +5,8 @@ Created PR: https://github.com/remla25-team15/app-frontend/pull/2 \
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/4
 
 -- Dmytro: --
-Created PR: https://github.com/remla25-team15/model-training/pull/3 \
-Approved PR: https://github.com/remla25-team15/operation/pull/2 \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/9 \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 \
+Created PR: https://github.com/remla25-team15/model-training/pull/3 (related to A1) \
+Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1) \
 
 -- Shreyas: --
 Created PR: https://github.com/remla25-team15/operation/pull/2 \
@@ -44,8 +42,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Dmytro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/17
-- approved PR: https://github.com/remla25-team15/operation/pull/16
+- created PR: https://github.com/remla25-team15/operation/pull/17 (Related to A2)
+- approved PR: https://github.com/remla25-team15/operation/pull/16 (Related to A2)
 
 -- Shreyas: --
 
@@ -75,9 +73,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Dmytro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/30
-- created PR: https://github.com/remla25-team15/app-frontend/pull/10
-- approved PR: https://github.com/remla25-team15/operation/pull/28
+- created PR: https://github.com/remla25-team15/operation/pull/30 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/28 (related to A3)
 
 -- Shreyas: --
 
