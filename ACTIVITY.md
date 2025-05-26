@@ -102,5 +102,35 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 --Aiman--
 
-- created PR: https://github.com/remla25-team15/operation/pull/29
-- approved PR: https://github.com/remla25-team15/operation/pull/28
+# Week 5:
+
+## A3:
+
+-- Alessandro: --
+
+- created PR: 
+- approved PR: 
+
+-- Dmytro: --
+
+- created PR: 
+- created PR: 
+- approved PR: 
+
+-- Shreyas: --
+
+- created PR: 
+
+- approved PR: 
+- approved PR: 
+- approved PR: 
+
+-- Liwia: --
+
+- created PR: https://github.com/remla25-team15/model-training/pull/13
+- approved PR: https://github.com/remla25-team15/model-training/pull/14
+
+--Aiman--
+
+- created PR: 
+- approved PR: 
