@@ -40,21 +40,26 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-model-service-config
                   key: host
-            - name: MODEL_RESOURCE_URI
+            - name: RESOURCE_BASE_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-model-service-secrets
-                  key: model_resource_uri
-            - name: CV_URI
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-model-service-secrets
-                  key: cv_uri
+                  key: resource_base_url
             - name: MODEL_VERSION
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-model-service-config
                   key: model_version
+            - name: MODEL_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: model_file_name
+            - name: CV_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: cv_file_name
           volumeMounts:
             - name: model-cache
               mountPath: /models

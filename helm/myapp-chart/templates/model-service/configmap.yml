@@ -8,3 +8,5 @@ data:
   port: {{ .Values.modelService.port | quote }}
   host: {{ .Values.modelService.hostIP | quote }}
   model_version: {{ .Values.modelService.modelVersion | quote }}
+  model_file_name: {{ .Values.modelService.modelFileName | quote }}
+  cv_file_name: {{ .Values.modelService.cvFileName | quote }}

@@ -63,9 +63,7 @@ service:
 ingress:
   enabled: true
   className: "nginx"
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  host: "" # will default to {{ .Release.Name }}.app.local if left empty
+  host: "app.local" # will default to {{ .Release.Name }}.app.local if left empty
 
 # Resource requests and limits
 resources:
@@ -109,7 +107,7 @@ appFrontend:
   replicaCount: 2
   image:
     repository: ghcr.io/remla25-team15/app-frontend
-    tag: "v1.1.0"
+    tag: "v3.1.0"
   hostIP: "0.0.0.0"
   configMapName: "app-frontend-config"
   appServiceHost: "app-service"
@@ -120,7 +118,7 @@ appService:
   replicaCount: 3
   image:
     repository: ghcr.io/remla25-team15/app-service
-    tag: "v1.0.0"
+    tag: "v2.0.0"
   hostIP: "0.0.0.0"
   host: "app-service"
   servicePort: 80
@@ -130,12 +128,14 @@ modelService:
   replicaCount: 3
   image:
     repository: ghcr.io/remla25-team15/model-service
-    tag: "v1.0.0"
+    tag: "v2.0.0"
   hostIP: "0.0.0.0"
-  modelVersion: v1.0.0
+  modelVersion: v1.1.0
+  cvFileName: c1_BoW_Sentiment_Model.pkl
+  modelFileName: c2_Classifier_Sentiment_Model.pkl
   secrets:
-    model_resource_uri: aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xbVFlTGRRN1BtYW9iazRMYUVRVlcyLVRZVVd1VmgxM1Ivdmlldz91c3A9c2hhcmluZw==
-    cv_uri: aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2ZpbGUvZC8xWThidzVEVnFSWldqRWVOcHFxX2toUUV4LWFaRmR3WVYvdmlldz91c3A9c2hhcmluZw==
+    resource_base_url: aHR0cHM6Ly9naXRodWIuY29tL3JlbWxhMjUtdGVhbTE1L21vZGVsLXRyYWluaW5nL3JlbGVhc2VzL2Rvd25sb2FkLw==
+
   host: "model-service"
   servicePort: 80
 
