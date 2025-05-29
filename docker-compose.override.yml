@@ -27,8 +27,6 @@ services:
       context: ../model-service
     environment:
       - FLASK_ENV=development
-      - MODEL_RESOURCE_URI=https://drive.google.com/file/d/1F6i--L50pVm7p0dcApGIhepC7CovC3La/view?usp=sharing
-      - CV_URI=https://drive.google.com/file/d/14bCZu2mMU_90ngZLDXyQh9fQCbqDW0E-/view?usp=sharing
       - PORT=5001
       - DEBUG=True
     volumes:
