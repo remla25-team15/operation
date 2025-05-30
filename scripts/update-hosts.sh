@@ -54,8 +54,12 @@ else
   # Escape dots in hostnames for sed search
   HOSTS_ESCAPED=$(echo "$HOSTNAMES" | sed 's/\./\\./g')
 
-  # Replace the line for any of the hostnames with new IP and updated hosts
-  sudo sed -i.bak -E "/\s+(${HOSTS_ESCAPED// /|})/ s/^.*$/$(printf '%s %s' "$DASHBOARD_IP" "$CURRENT_HOSTS")/" /etc/hosts
+  # Create and escape the replacement line safely
+  REPLACEMENT_LINE="${DASHBOARD_IP} ${CURRENT_HOSTS}"
+  ESCAPED_REPLACEMENT_LINE=$(echo "$REPLACEMENT_LINE" | tr -d '\n' | sed -e 's/[\/&]/\\&/g')
+
+  # Perform the replacement using escaped variables
+  sudo sed -i.bak -E "/\s+(${HOSTS_ESCAPED// /|})/ s/^.*$/${ESCAPED_REPLACEMENT_LINE}/" /etc/hosts
   echo -e "${GREEN}Mapping updated.${NC}"
 fi
 
