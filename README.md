@@ -110,7 +110,7 @@ The alert notification functionality is still under development.
 The dashboard is automatically installed in Grafana using a Kubernetes ConfigMap and Helm chart. No manual import is required.
 
 How it works:
-- The dashboard JSON is stored at `operation/k8s/grafana-dashboard.json`.
+- The dashboard JSON is stored at `operation/helm/myapp-chart/grafana/grafana-dashboard.json`.
 - The Helm chart includes a ConfigMap (`templates/grafana/configMap.yml`) that mounts this dashboard into the Grafana pod.
 - The deployment mounts the ConfigMap and uses a provisioning config (`provisioning-configMap.yml`) so Grafana loads dashboards from the correct path.
 - When you deploy the Helm chart (e.g., with `./scripts/run-all.sh`), the dashboard appears automatically in Grafana.
