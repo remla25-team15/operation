@@ -93,6 +93,43 @@
               - "{{ pool_name }}"
 
     # ────────────────────────────────────────────────────────────────────────────────
+    # Step 21.5 – Install Istio and its addons
+    # ────────────────────────────────────────────────────────────────────────────────
+    - name: Download Istio
+      become_user: vagrant
+      ansible.builtin.shell:
+        cmd: curl -L https://istio.io/downloadIstioctl | sh -
+      args:
+        creates: /home/vagrant/.istioctl/bin/istioctl
+
+    - name: Add Istio to PATH
+      become_user: vagrant
+      ansible.builtin.lineinfile:
+        path: /home/vagrant/.bashrc
+        line: 'export PATH=$PATH:$HOME/.istioctl/bin'
+        state: present
+
+    - name: Source bashrc and install Istio
+      become_user: vagrant
+      ansible.builtin.shell:
+        cmd: export PATH=$PATH:$HOME/.istioctl/bin && istioctl install -y
+      args:
+        creates: /var/lib/istio-install.done
+      register: _unused
+
+    - name: Mark Istio installation
+      file:
+        path: /var/lib/istio-install.done
+        state: touch
+
+    - name: Wait until Istio components are ready
+      become_user: vagrant
+      ansible.builtin.shell:
+        cmd: |
+          kubectl wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=120s && \
+          kubectl wait --for=condition=ready pod -l app=istio-ingressgateway -n istio-system --timeout=120s
+
+    # ────────────────────────────────────────────────────────────────────────────────
     # Step 21 – install the Nginx Ingress Controller with Helm
     # ────────────────────────────────────────────────────────────────────────────────
 
