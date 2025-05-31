@@ -4,6 +4,10 @@ metadata:
   name: {{ .Release.Name }}-frontend-dr
 spec:
   host: {{ .Release.Name }}-app-frontend-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true
   subsets:
   - name: v1
     labels:
@@ -21,7 +25,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        httpHeaderName: x-user
+        useSourceIp: true
   subsets:
   - name: v1
     labels:
@@ -39,7 +43,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        httpHeaderName: x-user
+        useSourceIp: true
   subsets:
   - name: v1
     labels:
