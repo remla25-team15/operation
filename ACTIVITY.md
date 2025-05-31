@@ -1,14 +1,12 @@
-# A1:
+# Week 2:
 
 -- Alessandro: --
 Created PR: https://github.com/remla25-team15/app-frontend/pull/2 \
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/4
 
 -- Dmytro: --
-Created PR: https://github.com/remla25-team15/model-training/pull/3 \
-Approved PR: https://github.com/remla25-team15/operation/pull/2 \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/9 \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 \
+Created PR: https://github.com/remla25-team15/model-training/pull/3 (related to A1) \
+Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1) \
 
 -- Shreyas: --
 Created PR: https://github.com/remla25-team15/operation/pull/2 \
@@ -31,10 +29,10 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 --Aiman--
 
-- created: https://github.com/remla25-team15/lib-version/pull/2
-- approved: https://github.com/remla25-team15/model-service/pull/1
+- created: https://github.com/remla25-team15/lib-version/pull/2 (related to A1)
+- approved: https://github.com/remla25-team15/model-service/pull/1 (related to A1)
 
-# A2:
+# Week 3:
 
 -- Alessandro: --
 
@@ -44,8 +42,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Dmytro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/17
-- approved PR: https://github.com/remla25-team15/operation/pull/16
+- created PR: https://github.com/remla25-team15/operation/pull/17 (Related to A2)
+- approved PR: https://github.com/remla25-team15/operation/pull/16 (Related to A2)
 
 -- Shreyas: --
 
@@ -63,24 +61,20 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 --Aiman--
 
-- created PR: https://github.com/remla25-team15/operation/pull/14
-- approved PR: https://github.com/remla25-team15/operation/pull/18
-- approved PR: https://github.com/remla25-team15/operation/pull/19
-- created issue: https://github.com/remla25-team15/operation/issues/20
+- created PR: https://github.com/remla25-team15/operation/pull/14 (related to A2)
+- approved PR: https://github.com/remla25-team15/operation/pull/19 (related to A2, merged it)
 
-# A3:
+# Week 4:
 
 -- Alessandro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/32
-- approved PR: https://github.com/remla25-team15/operation/pull/29
-- approved PR: https://github.com/remla25-team15/operation/pull/33
+- created PR: https://github.com/remla25-team15/operation/pull/32 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/29 (related to A3)
 
 -- Dmytro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/30
-- created PR: https://github.com/remla25-team15/app-frontend/pull/10
-- approved PR: https://github.com/remla25-team15/operation/pull/28
+- created PR: https://github.com/remla25-team15/operation/pull/30 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/28 (related to A3)
 
 -- Shreyas: --
 
@@ -97,6 +91,35 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 --Aiman--
 
-- created PR: https://github.com/remla25-team15/operation/pull/29
-- approved PR: https://github.com/remla25-team15/operation/pull/28
+- created PR: https://github.com/remla25-team15/operation/pull/29 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/28 (related to A3, merged it)
 
+# Week 5:
+
+-- Alessandro: --
+
+- created PR: https://github.com/remla25-team15/model-training/pull/14 (related to A4)
+- created PR: https://github.com/remla25-team15/operation/pull/35 (related to A3)
+- approved PR: https://github.com/remla25-team15/model-training/pull/12 (related to A4)
+
+-- Dmytro: --
+
+- created PR: https://github.com/remla25-team15/model-training/pull/10 (related to A4)
+- approved PR: https://github.com/remla25-team15/model-training/pull/4 (related to A4)
+
+-- Shreyas: --
+
+- created PR: https://github.com/remla25-team15/model-training/pull/4 (related to A4)
+- created PR: https://github.com/remla25-team15/model-training/pull/12 (related to A4)
+
+- approved PR: https://github.com/remla25-team15/model-training/pull/13 (related to A4)
+
+-- Liwia: --
+
+- created PR: https://github.com/remla25-team15/model-training/pull/13 (related to A4)
+- approved PR: https://github.com/remla25-team15/model-training/pull/14 (related to A4)
+
+--Aiman--
+
+- created PR: https://github.com/remla25-team15/model-training/pull/10 (related to A4)
+- approved PR: I had to review Dmytro's part in order to build on top of it for good and excellent even though I did not approve it. (related to A4)

@@ -1,8 +1,9 @@
 
-app-frontend: TODO: tag a3
-operation: TODO: tag a3
+app-frontend: https://github.com/remla25-team15/app-frontend/releases/tag/a3
 
-Comments for A3:
+operation: https://github.com/remla25-team15/operation/releases/tag/a3
+
+Comments for A3: 
 
 All the information on how to set up and run the project can be found in operation/README.md.
 

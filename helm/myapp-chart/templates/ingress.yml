@@ -3,14 +3,10 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   namespace: {{ .Release.Namespace }}
-  annotations:
-    {{- range $key, $val := .Values.ingress.annotations }}
-    {{ $key }}: {{ $val | quote }}
-    {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className | default "nginx" }}
   rules:
-    - host: app.local #{{ .Values.ingress.host | default (printf "%s.app.local" .Release.Name) }}
+    - host: {{ .Values.ingress.host | default (printf "%s.app.local" .Release.Name) }}
       http:
         paths:
           - path: /
