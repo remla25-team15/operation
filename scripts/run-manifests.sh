@@ -11,24 +11,9 @@ set -e
 # Set KUBECONFIG if needed
 export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
-# K8S_DIR="./k8s"
 NAMESPACE="default"  
 TIMEOUT=300
 INTERVAL=5
-
-# if [ ! -d "$K8S_DIR" ]; then
-#   echo -e "${RED}Directory $K8S_DIR does not exist!${NC}"
-#   exit 1
-# fi
-
-# echo -e "${BLUE}Applying all Kubernetes manifests from $K8S_DIR recursively...${NC}"
-
-# if kubectl apply -f "$K8S_DIR" --recursive; then
-#   echo -e "${GREEN}All manifests applied successfully.${NC}"
-# else
-#   echo -e "${RED}Failed to apply manifests.${NC}"
-#   exit 1
-# fi
 
 # All individual files applied successfully if we reach here
 echo -e "${GREEN}All manifests applied successfully.${NC}"
