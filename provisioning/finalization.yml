@@ -168,11 +168,11 @@
         path: /var/lib/k8s-dashboard-install.done
         state: touch
 
-    # - name: Wait until every Dashboard Deployment is Available
-    #   become_user: vagrant
-    #   ansible.builtin.command: >
-    #     kubectl -n {{ dash_ns }} wait --for=condition=available
-    #     deployment --all --timeout=120s
+    - name: Wait until every Dashboard Deployment is Available
+      become_user: vagrant
+      ansible.builtin.command: >
+        kubectl -n {{ dash_ns }} wait --for=condition=available
+        deployment --all --timeout=120s
 
     # ── RBAC for admin login ───────────────────────────────────────────────────
     - name: Create admin ServiceAccount
