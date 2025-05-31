@@ -18,6 +18,10 @@ metadata:
   name: {{ .Release.Name }}-app-service-dr
 spec:
   host: {{ .Release.Name }}-app-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-user
   subsets:
   - name: v1
     labels:
@@ -32,6 +36,10 @@ metadata:
   name: {{ .Release.Name }}-model-service-dr
 spec:
   host: {{ .Release.Name }}-model-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-user
   subsets:
   - name: v1
     labels:
