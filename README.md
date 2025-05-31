@@ -77,8 +77,6 @@ Unfortunately, all the scripts are bash scripts so you will have to run them in 
 If you're using Windows, you can still download and use bash (maybe try using git bash).
 If you're stuck with Powershell... helaas pindakaas...
 
-> **Note:** In this version, Grafana is not functional in the Kubernetes deployment via Helm due to credential issues when accessing the dashboard. Since the submission meets all requirements except for the Grafana integration, Grafana has been temporarily excluded and will be included in a future update.
-
 ## Monitoring
 ### Prometheus
 
@@ -99,7 +97,7 @@ It is possible to query:
 | `frontend_feedback_rating_total`         | Number of feedback ratings classified by type         | `feedback_type` (`positive`, `negative`, `unknown`) |
 
 
-The metrics are also assesible by (http://app.local/metrics)
+The metrics are also accessible at [http://app.local/metrics](http://app.local/metrics).
 
 ### Alerts
 PrometheusRule - "HighFrontendRequestRate" exists and you can check that it can be triggered in Prometheus UI [http://localhost:9090](http://localhost:9090).
@@ -107,42 +105,21 @@ The alert notification functionality is still under development.
 
 # Grafana Dashboard: Custom Metrics Visualization
 
-## Manual Installation (Basic/Sufficient)
+To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin).  After you ran the steps from [the setup](#How-to-run?)
 
-1. Open Grafana in your browser (e.g., https://dashboard.local/).
-2. Log in with your credentials or token.
-3. In the left sidebar, click the "+" icon and select **Import**.
-4. Click **Upload JSON file** and select `operation/k8s/grafana-dashboard.json` from this repository.
-5. Choose the Prometheus data source when prompted and click **Import**.
+The dashboard is automatically installed in Grafana using a Kubernetes ConfigMap and Helm chart. No manual import is required.
 
-This will add the custom dashboard with advanced visualizations for your app metrics.
+How it works:
+- The dashboard JSON is stored at `operation/helm/myapp-chart/grafana/grafana-dashboard.json`.
+- The Helm chart includes a ConfigMap (`templates/grafana/configMap.yml`) that mounts this dashboard into the Grafana pod.
+- The deployment mounts the ConfigMap and uses a provisioning config (`provisioning-configMap.yml`) so Grafana loads dashboards from the correct path.
+- When you deploy the Helm chart (e.g., with `./scripts/run-all.sh`), the dashboard appears automatically in Grafana.
 
-## Automatic Installation (Excellent)
+### Updating the dashboard
 
-The dashboard is automatically installed in Grafana using a Kubernetes ConfigMap. This is handled by applying the manifest:
-
-- `operation/k8s/prometheus/grafana-dashboard-configmap.yaml`
-
-This ConfigMap is labeled so that the Prometheus Operator (or kube-prometheus-stack) will automatically pick it up and load it into Grafana. No manual import is required.
-
-### How it works
-- The ConfigMap contains the dashboard JSON under the `data` key.
-- The label `grafana_dashboard: "1"` ensures Grafana detects and loads it.
-- When you deploy your manifests (e.g., with `./scripts/run-manifests.sh`), this ConfigMap is created in the `monitoring` namespace.
-- Grafana will automatically show the dashboard under its dashboards list.
-
-## References
-- Dashboard JSON: [`operation/k8s/grafana-dashboard.json`](k8s/grafana-dashboard.json)
-- ConfigMap for auto-install: [`operation/k8s/prometheus/grafana-dashboard-configmap.yaml`](k8s/prometheus/grafana-dashboard-configmap.yaml)
-
-## Summary of Requirements
-- **Sufficient:** Dashboard JSON exists and can be manually imported.
-- **Good:** Dashboard uses gauges, counters, timeframe selectors, and advanced Prometheus functions.
-- **Excellent:** Dashboard is auto-installed via ConfigMap and appears in Grafana without manual steps.
+To update the Grafana dashboard, replace the JSON file at `operation/helm/myapp-chart/grafana/grafana-dashboard.json` with your new or modified dashboard JSON. You can find dashboards on the [Grafana Dashboard Marketplace](https://grafana.com/grafana/dashboards/) or create your own using [these instructions](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/). After updating the JSON, redeploy the Helm chart to apply changes. You can use default Prometheus metrics or the [custom metrics listed above](#available-metrics).
 
 ---
-
-If you update the dashboard, regenerate both the JSON and ConfigMap files and re-apply the manifests.
 
 # Particulars
 

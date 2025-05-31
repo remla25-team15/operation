@@ -81,7 +81,7 @@ fi
 
 echo -e "${YELLOW}Dashboard URL:${NC} https://dashboard.local/"
 echo -e "${YELLOW}App URL:${NC} http://app.local/"
-echo -e "${YELLOW}Grafana URL:${NC} http://grafana.local/ (Credentials: admin/changeme123! - PLEASE CHANGE PASSWORD)"
+echo -e "${YELLOW}Grafana URL:${NC} http://grafana.local/ (Credentials: admin / admin - PLEASE CHANGE PASSWORD)"
 
 echo -e "${BLUE}\nPress Ctrl+C to stop and destroy the Vagrant VMs.${NC}"
 
