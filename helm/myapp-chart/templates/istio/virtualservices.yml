@@ -14,8 +14,16 @@ spec:
     route:
     - destination:
         host: {{ .Release.Name }}-app-frontend-service
+        subset: v1
         port:
           number: {{ .Values.appFrontend.servicePort | default 80 }}
+      weight: 90
+    - destination:
+        host: {{ .Release.Name }}-app-frontend-service
+        subset: v2
+        port:
+          number: {{ .Values.appFrontend.servicePort | default 80 }}
+      weight: 10
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
