@@ -77,8 +77,6 @@ Unfortunately, all the scripts are bash scripts so you will have to run them in 
 If you're using Windows, you can still download and use bash (maybe try using git bash).
 If you're stuck with Powershell... helaas pindakaas...
 
-> **Note:** In this version, Grafana is not functional in the Kubernetes deployment via Helm due to credential issues when accessing the dashboard. Since the submission meets all requirements except for the Grafana integration, Grafana has been temporarily excluded and will be included in a future update.
-
 ## Monitoring
 ### Prometheus
 
@@ -99,13 +97,15 @@ It is possible to query:
 | `frontend_feedback_rating_total`         | Number of feedback ratings classified by type         | `feedback_type` (`positive`, `negative`, `unknown`) |
 
 
-The metrics are also assesible by (http://app.local/metrics)
+The metrics are also accessible at [http://app.local/metrics](http://app.local/metrics).
 
 ### Alerts
 PrometheusRule - "HighFrontendRequestRate" exists and you can check that it can be triggered in Prometheus UI [http://localhost:9090](http://localhost:9090).
 The alert notification functionality is still under development.
 
 # Grafana Dashboard: Custom Metrics Visualization
+
+To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin).  After you ran the steps from [the setup](#How-to-run?)
 
 The dashboard is automatically installed in Grafana using a Kubernetes ConfigMap and Helm chart. No manual import is required.
 
@@ -115,11 +115,11 @@ How it works:
 - The deployment mounts the ConfigMap and uses a provisioning config (`provisioning-configMap.yml`) so Grafana loads dashboards from the correct path.
 - When you deploy the Helm chart (e.g., with `./scripts/run-all.sh`), the dashboard appears automatically in Grafana.
 
-If you update the dashboard, update the JSON and redeploy the Helm chart.
+### Updating the dashboard
+
+To update the Grafana dashboard, replace the JSON file at `operation/helm/myapp-chart/grafana/grafana-dashboard.json` with your new or modified dashboard JSON. You can find dashboards on the [Grafana Dashboard Marketplace](https://grafana.com/grafana/dashboards/) or create your own using [these instructions](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/). After updating the JSON, redeploy the Helm chart to apply changes. You can use default Prometheus metrics or the [custom metrics listed above](#available-metrics).
 
 ---
-
-If you update the dashboard, regenerate both the JSON and ConfigMap files and re-apply the manifests.
 
 # Particulars
 
