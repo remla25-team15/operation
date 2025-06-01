@@ -24,6 +24,7 @@
     dash_release: kubernetes-dashboard
     dash_ingress_host: dashboard.local # adjust to your DNS
     dash_sa_name: admin-user
+    istio_ns: istio-system
     token_cmd: "kubectl -n {{ dash_ns }} create token {{ dash_sa_name }}"
 
   # ────────────────────────────────────────────────────────────────────────────────
@@ -106,7 +107,7 @@
       become_user: vagrant
       ansible.builtin.lineinfile:
         path: /home/vagrant/.bashrc
-        line: 'export PATH=$PATH:$HOME/.istioctl/bin'
+        line: "export PATH=$PATH:$HOME/.istioctl/bin"
         state: present
 
     - name: Source bashrc and install Istio
@@ -128,6 +129,44 @@
         cmd: |
           kubectl wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=120s && \
           kubectl wait --for=condition=ready pod -l app=istio-ingressgateway -n istio-system --timeout=120s
+
+    # ────────────────────────────────────────────────────────────────────────────────
+    # Step 21.6 – Install Kiali for Istio observability
+    # ────────────────────────────────────────────────────────────────────────────────
+    - name: Add the Kiali Helm repo
+      become_user: vagrant
+      ansible.builtin.command:
+        cmd: helm repo add kiali https://kiali.org/helm-charts
+      changed_when: "'already exists' not in _add_repo.stderr"
+      register: _add_repo
+      failed_when: false
+
+    - name: Update Helm repo cache for Kiali
+      become_user: vagrant
+      ansible.builtin.command: helm repo update
+      changed_when: false
+
+    - name: Install / upgrade Kiali server
+      become_user: vagrant
+      ansible.builtin.command: >
+        helm upgrade --install kiali-server kiali/kiali-server
+        --namespace {{ istio_ns }}
+        --set auth.strategy="anonymous"
+        --set deployment.ingress.enabled=false
+      args:
+        creates: /var/lib/kiali-install.done
+      register: _unused
+
+    - name: Mark Kiali installation
+      file:
+        path: /var/lib/kiali-install.done
+        state: touch
+
+    - name: Wait until Kiali deployment is ready
+      become_user: vagrant
+      ansible.builtin.command: >
+        kubectl -n {{ istio_ns }} wait --for=condition=available
+        deployment/kiali --timeout=120s
 
     # ────────────────────────────────────────────────────────────────────────────────
     # Step 21 – install the Nginx Ingress Controller with Helm

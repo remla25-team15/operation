@@ -78,3 +78,23 @@ spec:
         port:
           number: {{ .Values.modelService.servicePort | default 80 }}
       weight: 10 
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kiali-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "kiali.local"
+  gateways:
+    - default/{{ .Release.Name }}-gateway
+  http:
+  - match:
+      - uri:
+          prefix: /
+    route:
+      - destination:
+          host: kiali.istio-system.svc.cluster.local
+          port:
+            number: 20001
