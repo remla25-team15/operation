@@ -17,13 +17,13 @@ spec:
         subset: v1
         port:
           number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 90
+      weight: 60
     - destination:
         host: {{ .Release.Name }}-app-frontend-service
         subset: v2
         port:
           number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 10
+      weight: 40
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -41,16 +41,8 @@ spec:
     route:
     - destination:
         host: {{ .Release.Name }}-app-service
-        subset: v1
         port:
           number: {{ .Values.appService.servicePort | default 80 }}
-      weight: 90
-    - destination:
-        host: {{ .Release.Name }}-app-service
-        subset: v2
-        port:
-          number: {{ .Values.appService.servicePort | default 80 }}
-      weight: 10
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -68,16 +60,8 @@ spec:
     route:
     - destination:
         host: {{ .Release.Name }}-model-service
-        subset: v1
         port:
           number: {{ .Values.modelService.servicePort | default 80 }}
-      weight: 90
-    - destination:
-        host: {{ .Release.Name }}-model-service
-        subset: v2
-        port:
-          number: {{ .Values.modelService.servicePort | default 80 }}
-      weight: 10 
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
