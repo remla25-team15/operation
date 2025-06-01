@@ -1,6 +1,5 @@
 # How to run?
 
-
 > Note: You cannot provision anything unless you set up SSH. Please generate your SSH keys and put them in the correct folder for the provisioning to work.
 > You can find the instructions in the README inside `provisioning/` [here](https://github.com/remla25-team15/operation/tree/main/provisioning).
 
@@ -12,13 +11,17 @@ To provision, orchestrate, and run the application using a Kubernetes deployment
 
 Now, the application should be accessible at [http://app.local/](http://app.local/)
 
-If the script exits because of timeout, you can simply run it again, maybe using the `--provision` flag.
+The script is robust and waits for some time until pods and services are available.
+It does time out if it takes too long for services or pods to start.
+Sometimes, it also times out during provisioning where we have waiting steps for components to get ready.
+If the script exits because of a timeout related error, you can simply run it again, maybe using the `--provision` flag.
 
 ```zsh
 ./scripts/run-all.sh --provision
 ```
 
 It should pick up from where it left off the last time.
+
 Invoking the script again and again shouldn't cause any problems since most of the provisioning is idempotent.
 
 If you're running it for the first time, the model-service will download the models to cache them locally in a shared
@@ -28,6 +31,18 @@ subsequent invocations will use this rather than downloading the model again whe
 But, it takes a while so you can go grab a cup of coffee or something... :coffee:
 
 The next invocations should be faster.
+
+> Note: Our current deployment uses Istio gateway for app and kiali but still uses Ingress for kubernetes dashboard and grafana.
+> When the script runs, please make sure you see something like this in your terminal:
+
+```zsh
+Current relevant entries in /etc/hosts after script execution:
+192.168.56.80 app.local kiali.local
+192.168.56.81 dashboard.local grafana.local
+```
+
+> Your /etc/hosts should have these entries (the IP addresses could be different). The `scripts/run-all.sh` script invokes `scripts/update-hosts.sh` script which
+> should inject them automatically but if for some reason you cannot access the app or anything else, please make sure you have these entries in the /etc/hosts file.
 
 Unfortunately, all the scripts are bash scripts so you will have to run them in bash (or z shell).
 If you're using Windows, you can still download and use bash (maybe try using git bash).
@@ -49,6 +64,12 @@ The following command should help with it:
 
 > You need to make sure to set this variable for every shell invocation, i.e. whenever you open a new shell, please make sure to set this
 > before you try to run `kubectl`.
+
+If you want to install the helm chart manually, you need to enable Istio's automatic sidecar injection:
+
+```zsh
+kubectl label namespace my-app istio-injection=enabled
+```
 
 To install a helm chart, you can run:
 
@@ -78,38 +99,43 @@ If you're using Windows, you can still download and use bash (maybe try using gi
 If you're stuck with Powershell... helaas pindakaas...
 
 ## Monitoring
+
 ### Prometheus
 
 To access Prometheus UI and Query metrics you can port forward from a new terminal in `./operation`:
+
 ```zsh
 ./scripts/update-hosts.sh
 kubectl port-forward -n monitoring svc/myprom-kube-prometheus-sta-prometheus 9090
 ```
+
 Then go to [http://localhost:9090](http://localhost:9090).
 It is possible to query:
+
 ### Available Metrics
 
-| Metric Name                              | Description                                           | Labels                                      |
-|------------------------------------------|-------------------------------------------------------|---------------------------------------------|
-| `frontend_prediction_requests_total`     | Total number of prediction requests sent from frontend | `status` (e.g. `200`, `500`)                |
-| `frontend_active_users_total`            | Current number of active users                        | `device_type` (e.g. `desktop`, `mobile`)    |
-| `frontend_predict_request_duration_seconds` | Histogram of latencies for `/api/predict` requests | —                                           |
-| `frontend_feedback_rating_total`         | Number of feedback ratings classified by type         | `feedback_type` (`positive`, `negative`, `unknown`) |
-
+| Metric Name                                 | Description                                            | Labels                                              |
+| ------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------- |
+| `frontend_prediction_requests_total`        | Total number of prediction requests sent from frontend | `status` (e.g. `200`, `500`)                        |
+| `frontend_active_users_total`               | Current number of active users                         | `device_type` (e.g. `desktop`, `mobile`)            |
+| `frontend_predict_request_duration_seconds` | Histogram of latencies for `/api/predict` requests     | —                                                   |
+| `frontend_feedback_rating_total`            | Number of feedback ratings classified by type          | `feedback_type` (`positive`, `negative`, `unknown`) |
 
 The metrics are also accessible at [http://app.local/metrics](http://app.local/metrics).
 
 ### Alerts
+
 PrometheusRule - "HighFrontendRequestRate" exists and you can check that it can be triggered in Prometheus UI [http://localhost:9090](http://localhost:9090).
 The alert notification functionality is still under development.
 
 # Grafana Dashboard: Custom Metrics Visualization
 
-To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin).  After you ran the steps from [the setup](#How-to-run?)
+To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin). After you ran the steps from [the setup](#How-to-run?)
 
 The dashboard is automatically installed in Grafana using a Kubernetes ConfigMap and Helm chart. No manual import is required.
 
 How it works:
+
 - The dashboard JSON is stored at `operation/helm/myapp-chart/grafana/grafana-dashboard.json`.
 - The Helm chart includes a ConfigMap (`templates/grafana/configMap.yml`) that mounts this dashboard into the Grafana pod.
 - The deployment mounts the ConfigMap and uses a provisioning config (`provisioning-configMap.yml`) so Grafana loads dashboards from the correct path.
