@@ -30,7 +30,7 @@ spec:
                 name: {{ .Release.Name }}-model-service
                 port:
                   number: {{ .Values.modelService.servicePort | default 80 }}
-    - host: grafana.local
+    - host: {{ .Values.grafana.host | default "grafana.local" }}
       http:
         paths:
           - path: /

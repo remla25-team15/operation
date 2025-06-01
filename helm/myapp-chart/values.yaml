@@ -162,6 +162,7 @@ prometheusRuleRequests:
   description: The frontend_prediction_requests_total counter has exceeded 300.
 
 grafana:
+  host: grafana.local
   port: 3000 # run in different pods so does not conflict with app frontend
   replicaCount: 1
   image:
