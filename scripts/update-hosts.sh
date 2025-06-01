@@ -10,58 +10,75 @@ set -e
 
 export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
-echo -e "${YELLOW}Checking dashboard.local, app.local, and grafana.local IP mapping...${NC}"
+echo -e "${YELLOW}Checking dashboard.local, app.local, grafana.local and kiali.local IP mapping...${NC}"
 
-# Get the IP from the ingress-nginx-controller
-DASHBOARD_IP=$(kubectl get svc ingress-nginx-controller \
+# Get the IP from the Istio gateway
+ISTIO_IP=$(kubectl get svc istio-ingressgateway \
+  -n istio-system \
+  -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+if [ -z "$ISTIO_IP" ]; then
+  echo -e "${RED}Could not retrieve Istio IP.${NC}"
+  exit 1
+fi
+echo -e "${GREEN}Istio Ingress Gateway IP: $ISTIO_IP${NC}"
+
+# --- Retrieve Generic Ingress Controller IP (specifically ingress-nginx-controller in ingress-nginx) ---
+echo -e "${BLUE}Attempting to retrieve Generic Ingress Controller IP from 'ingress-nginx-controller' in 'ingress-nginx' namespace...${NC}"
+INGRESS_IP=$(kubectl get svc ingress-nginx-controller \
   -n ingress-nginx \
   -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
-if [ -z "$DASHBOARD_IP" ]; then
-  echo -e "${RED}Could not retrieve ingress-nginx IP.${NC}"
+if [ -z "$INGRESS_IP" ]; then
+  echo -e "${RED}Could not retrieve Generic Ingress IP. Please ensure 'ingress-nginx-controller' service exists in 'ingress-nginx' namespace and has an external IP.${NC}"
   exit 1
 fi
+echo -e "${GREEN}Generic Ingress Controller IP: $INGRESS_IP${NC}"
 
 # Hostnames to ensure are on the same line
-HOSTNAMES="dashboard.local app.local grafana.local"
+ISTIO_HOSTNAMES="app.local kiali.local"
+INGRESS_HOSTNAMES="dashboard.local grafana.local"
 
-# Check if any of these hostnames exist in /etc/hosts
-LINE=$(grep -E "\s+(dashboard\.local|app\.local|grafana\.local)" /etc/hosts || true)
+# Combined list of all hostnames managed by this script for filtering
+ALL_MANAGED_HOSTNAMES="${ISTIO_HOSTNAMES} ${INGRESS_HOSTNAMES}"
 
-if [ -z "$LINE" ]; then
-  # Neither hostname found, add all on a new line
-  echo -e "${YELLOW}Adding new entry for $HOSTNAMES to /etc/hosts${NC}"
-  echo "$DASHBOARD_IP $HOSTNAMES" | sudo tee -a /etc/hosts > /dev/null
-  echo -e "${GREEN}Mapping added.${NC}"
-else
-  # At least one hostname exists, update line
-  CURRENT_IP=$(echo "$LINE" | awk '{print $1}')
-  CURRENT_HOSTS=$(echo "$LINE" | cut -d' ' -f2-)
+# --- Function to update /etc/hosts file with distinct IP mappings ---
+# This function will:
+# 1. Create a temporary file.
+# 2. Copy all lines from /etc/hosts to the temp file, EXCLUDING lines
+#    that contain any of the hostnames managed by this script.
+# 3. Append the new, correct mappings (one for Istio, one for Ingress)
+#    to the temporary file.
+# 4. Overwrite the original /etc/hosts with the content of the temporary file.
+update_hosts_file() {
+  local istio_ip="$1"
+  local ingress_ip="$2"
+  local temp_hosts_file=$(mktemp) # Create a unique temporary file
 
-  # Ensure all hostnames are present (avoid duplicates)
-  for host in $HOSTNAMES; do
-    if ! grep -qw "$host" <<< "$CURRENT_HOSTS"; then
-      CURRENT_HOSTS="$CURRENT_HOSTS $host"
-    fi
-  done
+  # Prepare regex for filtering out old managed entries
+  # Escapes dots and joins hostnames with '|' for OR matching (e.g., "app\.local|kiali\.local|dashboard\.local|grafana\.local")
+  local filter_regex=$(echo "$ALL_MANAGED_HOSTNAMES" | sed 's/\./\\./g' | sed 's/ /|/g')
 
-  if [[ "$CURRENT_IP" == "$DASHBOARD_IP" ]]; then
-    echo -e "${GREEN}Entry found with correct IP. Ensuring hostnames are complete...${NC}"
-  else
-    echo -e "${YELLOW}IP differs, updating from $CURRENT_IP to $DASHBOARD_IP${NC}"
-  fi
+  # Copy existing /etc/hosts content to a temporary file,
+  # excluding any lines that contain the hostnames we manage.
+  # `grep -Ev` means "Extended regex, invert match" (i.e., print lines that *do not* match).
+  grep -Ev "\s+(${filter_regex})" /etc/hosts > "$temp_hosts_file" || true
 
-  # Escape dots in hostnames for sed search
-  HOSTS_ESCAPED=$(echo "$HOSTNAMES" | sed 's/\./\\./g')
+  # Append the new, correct entries to the temporary file
+  echo "${istio_ip} ${ISTIO_HOSTNAMES}" >> "$temp_hosts_file"
+  echo "${ingress_ip} ${INGRESS_HOSTNAMES}" >> "$temp_hosts_file"
 
-  # Create and escape the replacement line safely
-  REPLACEMENT_LINE="${DASHBOARD_IP} ${CURRENT_HOSTS}"
-  ESCAPED_REPLACEMENT_LINE=$(echo "$REPLACEMENT_LINE" | tr -d '\n' | sed -e 's/[\/&]/\\&/g')
+  # Overwrite the original /etc/hosts file with the content of the temporary file
+  # This requires sudo privileges.
+  sudo mv "$temp_hosts_file" /etc/hosts
+  sudo chmod 644 /etc/hosts # Ensure correct file permissions
 
-  # Perform the replacement using escaped variables
-  sudo sed -i.bak -E "/\s+(${HOSTS_ESCAPED// /|})/ s/^.*$/${ESCAPED_REPLACEMENT_LINE}/" /etc/hosts
-  echo -e "${GREEN}Mapping updated.${NC}"
-fi
+  echo -e "${GREEN}Hosts file updated successfully.${NC}"
+}
 
-echo -e "${BLUE}Current relevant entries:${NC}"
-grep -E "\s+(dashboard\.local|app\.local|grafana\.local)" /etc/hosts || echo "No entries found."
+# --- Execute the update function with the retrieved IPs ---
+update_hosts_file "$ISTIO_IP" "$INGRESS_IP"
+
+echo -e "${BLUE}Current relevant entries in /etc/hosts after script execution:${NC}"
+# Display only the lines that contain any of the managed hostnames
+grep -E "\s+(dashboard\.local|app\.local|grafana\.local|kiali\.local)" /etc/hosts || true
