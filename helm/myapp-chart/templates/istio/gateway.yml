@@ -13,3 +13,4 @@ spec:
     hosts:
     - "{{ .Values.ingress.host }}"
     - "kiali.local"
+    - "prometheus.local"

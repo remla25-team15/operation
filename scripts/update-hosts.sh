@@ -36,7 +36,7 @@ fi
 echo -e "${GREEN}Generic Ingress Controller IP: $INGRESS_IP${NC}"
 
 # Hostnames to ensure are on the same line
-ISTIO_HOSTNAMES="app.local kiali.local"
+ISTIO_HOSTNAMES="app.local kiali.local prometheus.local"
 INGRESS_HOSTNAMES="dashboard.local grafana.local"
 
 # Combined list of all hostnames managed by this script for filtering
