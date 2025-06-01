@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-frontend-dr
+spec:
+  host: {{ .Release.Name }}-app-frontend-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-app-service-dr
+spec:
+  host: {{ .Release.Name }}-app-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-model-service-dr
+spec:
+  host: {{ .Release.Name }}-model-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true
