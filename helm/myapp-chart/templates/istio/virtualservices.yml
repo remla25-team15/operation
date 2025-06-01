@@ -1,3 +1,13 @@
+# Istio Virtual Services for traffic routing and A/B testing
+# 
+# A/B Testing Implementation:
+# The frontend virtual service below implements traffic splitting for A/B testing:
+# - 60% of traffic goes to version v1 (traditional button interface)
+# - 40% of traffic goes to version v2 (thumbs up/down feedback interface)
+#
+# Combined with sticky sessions (source IP hashing in DestinationRules), 
+# users will consistently see the same version throughout their session.
+
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -12,18 +22,19 @@ spec:
     - uri:
         prefix: /
     route:
+    # A/B Testing: Traffic split between two frontend versions
     - destination:
         host: {{ .Release.Name }}-app-frontend-service
-        subset: v1
+        subset: v1  # Traditional button interface
         port:
           number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 60
+      weight: 60  # 60% of users see version 1
     - destination:
         host: {{ .Release.Name }}-app-frontend-service
-        subset: v2
+        subset: v2  # Thumbs up/down feedback interface
         port:
           number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 40
+      weight: 40  # 40% of users see version 2
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService

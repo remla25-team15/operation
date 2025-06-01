@@ -1,13 +1,34 @@
+# Istio Destination Rules for traffic management
+# These rules define traffic policies and service subsets for load balancing and routing
+
+# A/B Testing Configuration:
+# Our application implements A/B testing with two versions of the frontend:
+# - Version v1: Has a traditional button interface for predictions
+# - Version v2: Has thumbs up/down interface for providing feedback on predictions
+#
+# Sticky Sessions:
+# The trafficPolicy below uses source IP for consistent hash load balancing.
+# This ensures users are consistently routed to the same version during their session.
+# 
+# To disable sticky sessions and see both A/B test versions:
+# Comment out the trafficPolicy section in the frontend destination rule below.
+#
+# Rate Limiting:
+# Rate limiting is implemented using the same source IP used for sticky sessions,
+# ensuring consistent user experience and proper throttling per individual user.
+
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: {{ .Release.Name }}-frontend-dr
 spec:
   host: {{ .Release.Name }}-app-frontend-service
+  # Traffic policy for sticky sessions - comment out to disable A/B test consistency
   trafficPolicy:
     loadBalancer:
       consistentHash:
         useSourceIp: true
+  # Service subsets for A/B testing
   subsets:
   - name: v1
     labels:
