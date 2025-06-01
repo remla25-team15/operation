@@ -131,6 +131,23 @@
           kubectl wait --for=condition=ready pod -l app=istio-ingressgateway -n istio-system --timeout=120s
 
     # ────────────────────────────────────────────────────────────────────────────────
+    # Step 21.5.5 - Install Addons
+    # ────────────────────────────────────────────────────────────────────────────────
+    - name: Install all Istio addons
+      become_user: vagrant
+      ansible.builtin.shell: | # Add Kiali and Grafana like this instead?
+        for addon in prometheus jaeger; do 
+          kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.26/samples/addons/$addon.yaml
+        done
+      args:
+        creates: /var/lib/istio-addons-installed.done
+
+    - name: Mark addons installed
+      file:
+        path: /var/lib/istio-addons-installed.done
+        state: touch
+
+    # ────────────────────────────────────────────────────────────────────────────────
     # Step 21.6 – Install Kiali for Istio observability
     # ────────────────────────────────────────────────────────────────────────────────
     - name: Add the Kiali Helm repo
@@ -366,38 +383,38 @@
                           name: "{{ dash_release }}-kong-proxy"
                           port:
                             number: 443 # dashboard service exposes HTTPS
-
-    # Install Prometheus Monitoring Stack via Helm
-    - name: Add prometheus-community Helm repo
-      become_user: vagrant
-      ansible.builtin.command:
-        cmd: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-      changed_when: "'already exists' not in _add_repo.stderr"
-      register: _add_repo
-      failed_when: false
-
-    - name: Update Helm repo cache
-      become_user: vagrant
-      ansible.builtin.command: helm repo update
-      changed_when: false
-
-    - name: Deploy Prometheus stack with Helm
-      become_user: vagrant
-      ansible.builtin.command: >
-        helm upgrade --install myprom prometheus-community/kube-prometheus-stack
-        --namespace monitoring --create-namespace
-        --set grafana.ingress.enabled=false
-        --set prometheus.ingress.enabled=false
-      args:
-        creates: /var/lib/prometheus-install.done
-      register: _unused
-
-    - name: Mark Prometheus installation
-      file:
-        path: /var/lib/prometheus-install.done
-        state: touch
-
-    - name: Wait until Prometheus components are available
-      become_user: vagrant
-      ansible.builtin.command: >
-        kubectl -n monitoring wait --for=condition=available deployment --all --timeout=180s
+#
+#    # Install Prometheus Monitoring Stack via Helm
+#    - name: Add prometheus-community Helm repo
+#      become_user: vagrant
+#      ansible.builtin.command:
+#        cmd: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#      changed_when: "'already exists' not in _add_repo.stderr"
+#      register: _add_repo
+#      failed_when: false
+#
+#    - name: Update Helm repo cache
+#      become_user: vagrant
+#      ansible.builtin.command: helm repo update
+#      changed_when: false
+#
+#    - name: Deploy Prometheus stack with Helm
+#      become_user: vagrant
+#      ansible.builtin.command: >
+#        helm upgrade --install myprom prometheus-community/kube-prometheus-stack
+#        --namespace monitoring --create-namespace
+#        --set grafana.ingress.enabled=false
+#        --set prometheus.ingress.enabled=false
+#      args:
+#        creates: /var/lib/prometheus-install.done
+#      register: _unused
+#
+#    - name: Mark Prometheus installation
+#      file:
+#        path: /var/lib/prometheus-install.done
+#        state: touch
+#
+#    - name: Wait until Prometheus components are available
+#      become_user: vagrant
+#      ansible.builtin.command: >
+#        kubectl -n monitoring wait --for=condition=available deployment --all --timeout=180s
