@@ -12,7 +12,9 @@ To provision, orchestrate, and run the application using a Kubernetes deployment
 Now, the application should be accessible at [http://app.local/](http://app.local/)
 
 The script is robust and waits for some time until pods and services are available.
-It does time out if it takes too long for containers to start. If the script exits because of a timeout related error, you can simply run it again, maybe using the `--provision` flag.
+It does time out if it takes too long for services or pods to start.
+Sometimes, it also times out during provisioning where we have waiting steps for components to get ready.
+If the script exits because of a timeout related error, you can simply run it again, maybe using the `--provision` flag.
 
 ```zsh
 ./scripts/run-all.sh --provision
