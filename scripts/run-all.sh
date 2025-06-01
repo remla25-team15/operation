@@ -54,6 +54,9 @@ bash "${SCRIPTS_DIR}/run-provisioning.sh" $PROVISION_ARG || {
 # Set KUBECONFIG for this session
 export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 
+# Enable sidecar injection 
+kubectl label ns default istio-injection=enabled
+
 echo -e "${BLUE}Deploying application with Helm...${NC}"
 helm upgrade --install myapp ./helm/myapp-chart || {
     echo -e "${RED}Helm deployment failed. Exiting.${NC}"
