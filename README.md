@@ -178,32 +178,6 @@ corresponding README can be found [here](https://github.com/remla25-team15/opera
 
 > Note: To do provisioning manually, please make sure you `cd` into `provisioning/` folder
 
-## Kubernetes Setup (TODO: Add a helm section)
-
-> NOTE: This section contains the manifests inside `k8s/` which is not used anymore because we are using helm, refer the "How to run?" section
-> if you want to run the application using helm.
-> The `k8s/` manifests will be removed soon to be replaced by helm.
-
-After you're done provisioning the VMs, you can, again, run a simple script to deploy all the kubernetes manifests:
-
-```zsh
-./scripts/run-manifests.sh
-```
-
-Or, you can also do it manually:
-
-```zsh
-kubectl apply -f ./k8s/ --recursive
-```
-
-> Note that unlike provisioning, this command needs to be run from the root folder
-
-Now, the application should be accessible at [http://app.local/](http://app.local/)
-
-If something goes wrong, it's probably because the scripts silently errored out. In this case,
-please perform everything manually as per the respective READMEs or sections to identify which step is
-causing issues.
-
 # Development Section
 
 ### Expected directory structure for development
