@@ -1,19 +1,19 @@
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: test-always-on
-  namespace: monitoring
-  labels:
-    release: myprom
-spec:
-  groups:
-    - name: test.rules
-      rules:
-        - alert: TestAlwaysOn
-          expr: vector(1)
-          for: 5s
-          labels:
-            severity: warning
-          annotations:
-            summary: "Test Always On"
-            description: "This alert always fires for testing"
+{{/*apiVersion: monitoring.coreos.com/v1*/}}
+{{/*kind: PrometheusRule*/}}
+{{/*metadata:*/}}
+{{/*  name: test-always-on*/}}
+{{/*  namespace: monitoring*/}}
+{{/*  labels:*/}}
+{{/*    release: myprom*/}}
+{{/*spec:*/}}
+{{/*  groups:*/}}
+{{/*    - name: test.rules*/}}
+{{/*      rules:*/}}
+{{/*        - alert: TestAlwaysOn*/}}
+{{/*          expr: vector(1)*/}}
+{{/*          for: 5s*/}}
+{{/*          labels:*/}}
+{{/*            severity: warning*/}}
+{{/*          annotations:*/}}
+{{/*            summary: "Test Always On"*/}}
+{{/*            description: "This alert always fires for testing"*/}}

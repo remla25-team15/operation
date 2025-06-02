@@ -10,7 +10,7 @@ data:
     datasources:
       - name: Prometheus
         type: prometheus
-        url: http://{{ .Values.prometheus.release }}-kube-prometheus-sta-prometheus.{{ .Values.prometheus.namespace }}:9090
+        url: http://prometheus.istio-system.svc.cluster.local:9090
         access: proxy
         isDefault: true
         editable: true
