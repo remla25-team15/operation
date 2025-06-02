@@ -2,7 +2,9 @@
 
 You can find the documentation of our deployments at [docs/](docs/deployment.md).
 
-The documentation for continuous experimentation can be found at [docs/](deployment.md).
+The documentation for continuous experimentation can be found at [docs/](docs/deployment.md).
+
+The documentation for the extension proposal can be found at [docs/](docs/extension.md).
 
 # How to run?
 
