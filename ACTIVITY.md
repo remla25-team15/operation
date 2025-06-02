@@ -129,6 +129,7 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 -- Alessandro: --
 
 - created PR: https://github.com/remla25-team15/operation/pull/45 (related to A5)
+- created PR: https://github.com/remla25-team15/operation/pull/47 (related to A5)
 - approved PR: https://github.com/remla25-team15/operation/pull/44 (related to A5)
 - approved PR: https://github.com/remla25-team15/operation/pull/46 (related to A5)
 
