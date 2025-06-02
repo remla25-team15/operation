@@ -1,3 +1,9 @@
+# Design documentation
+
+You can find the documentation of our deployments at [docs/](docs/deployment.md).
+
+The documentation for continuous experimentation can be found at [docs/](deployment.md).
+
 # How to run?
 
 > Note: You cannot provision anything unless you set up SSH. Please generate your SSH keys and put them in the correct folder for the provisioning to work.
