@@ -182,4 +182,4 @@ env:
 rateLimit:
   enabled: true
   # Requests per minute allowed per user IP address
-  requestsPerMinute: 10
+  requestsPerMinute: 200
