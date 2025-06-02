@@ -139,15 +139,13 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Shreyas: --
 
-- created PR: (related to )
-- created PR: (related to )
-
-- approved PR: (related to )
+- created PR: https://github.com/remla25-team15/operation/pull/44 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/42 (related to A5)
 
 -- Liwia: --
 
 - created PR: (related to )
-- approved PR:  (related to )
+- approved PR: (related to )
 
 --Aiman--
 
