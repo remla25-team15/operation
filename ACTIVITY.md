@@ -123,3 +123,33 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 - created PR: https://github.com/remla25-team15/model-training/pull/10 (related to A4)
 - approved PR: I had to review Dmytro's part in order to build on top of it for good and excellent even though I did not approve it. (related to A4)
+
+# Week 6:
+
+-- Alessandro: --
+
+- created PR: (related to )
+- created PR: (related to )
+- approved PR: (related to )
+
+-- Dmytro: --
+
+- created PR: https://github.com/remla25-team15/operation/pull/42 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/44 (related to A5)
+
+-- Shreyas: --
+
+- created PR: (related to )
+- created PR: (related to )
+
+- approved PR: (related to )
+
+-- Liwia: --
+
+- created PR: (related to )
+- approved PR:  (related to )
+
+--Aiman--
+
+- created PR: (related to )
+- approved PR: (related to )
