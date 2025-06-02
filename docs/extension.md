@@ -1,167 +1,98 @@
 # Extension Proposal: Automated Model Re-training Based on User Feedback
 
-## Executive Summary
+> **Goal**  
+> Replace today’s “train-once, deploy-forever” model with a **closed feedback loop** that turns daily user corrections into better models—safely, automatically, and on repeat.
 
-This document proposes implementing an automated model re-training system that leverages user feedback data to continuously improve the sentiment analysis model performance. The extension addresses a critical shortcoming in our current ML pipeline: the lack of continuous learning capabilities that adapt to evolving data patterns and user corrections.
+---
 
-## Identified Shortcoming: Static Model Deployment Without Continuous Learning
+## 1 Why We Need This Change
 
-### Current State Analysis
+| Observed Shortcoming | Negative Effect in Production | Mitigation in This Proposal |
+|----------------------|--------------------------------|-----------------------------|
+| **Static model** trained only on the initial dump | Accuracy drifts as language and topics change | Continuous feedback ingestion + scheduled re-training |
+| **Unused 👍/👎 feedback** | We lose ~ X high-quality labels per day | Store every vote, validate, add to training set |
+| **Manual DVC trigger** | Slow, error-prone and costly interventions | One-click or cron-based Kubeflow pipeline |
+| **No performance guardrails** | Risk of shipping worse models | Automated tests, drift checks, and canary release |
 
-Our current sentiment analysis deployment follows a **static model paradigm** where:
+---
 
-1. **Models are trained once** on historical restaurant review datasets (`a1_RestaurantReviews_HistoricDump.tsv`)
-2. **No feedback loop exists** between production predictions and model improvement
-3. **Manual intervention required** for model updates through the DVC pipeline
-4. **User feedback is collected but discarded** - the system captures feedback through `frontend_feedback_rating_total` metrics but doesn't utilize this valuable ground truth data
+## 2 Solution Overview
 
-### Critical Effects and Implications
+![Continuous Learning Architecture](images/train_loop.webp)
 
-This shortcoming has several **severe negative effects** on our ML system:
+*Figure 1 — Data flows from the user back to the model through Kafka, Kubeflow, and Istio.*
 
-#### 1. Model Drift and Performance Degradation
-- **Concept Drift**: User language patterns, sentiment expressions, and vocabulary evolve over time, causing the static model to become increasingly inaccurate
-- **Domain Shift**: Restaurant review sentiment may vary by restaurant type, geographical location, or seasonal trends that weren't captured in the original training data
-- **Performance Decay**: Without continuous updates, model accuracy degrades as real-world data diverges from training distributions
+1. **Feedback Ingestion** – The frontend emits a *feedback* event for every prediction. We stream these events through Kafka, run schema checks, and store them in `postgres://feedback`.
+2. **Data Curation** – A lightweight service scores, deduplicates, and tags new samples for re-training.
+3. **Automated Re-training** – A Kubeflow pipeline (`/mlops/retraining/retrain-pipeline.yaml`) retrains the model nightly or on drift alerts from `drift_detector.py`.
+4. **Validation & Safety Gates** – Unit tests, held-out metrics, and drift statistics must all beat the current production model before promotion.
+5. **Progressive Delivery** – Istio DestinationRules expose the new image as a 10 % canary; Sticky Sessions ensure consistent user experience.
+6. **Monitoring** – Grafana panels track accuracy, drift, deployment success, and feedback volume.
 
-#### 2. Wasted Valuable Feedback Data
-- **Ground Truth Loss**: Every user correction (👍/👎 feedback) represents high-quality labeled data that could improve model accuracy
-- **Missed Learning Opportunities**: The system currently collects ~X feedback samples per day but discards this information instead of leveraging it for improvement
-- **Suboptimal Resource Utilization**: Human annotation effort is essentially wasted when feedback isn't incorporated back into the model
+---
 
-#### 3. Scalability and Operational Inefficiency
-- **Manual Bottleneck**: Model updates require manual triggering of the DVC pipeline, creating operational overhead
-- **Delayed Response**: Critical model issues may persist for weeks/months until manually addressed
-- **Version Management Complexity**: No systematic approach for evaluating and deploying improved models based on production feedback
+## 3 Portability & Broader Use
 
-#### 4. Competitive Disadvantage
-- **Lack of Personalization**: Models cannot adapt to specific user preferences or domain-specific language patterns
-- **Slower Improvement Cycles**: Competitors using continuous learning gain accuracy advantages over time
-- **Reduced User Satisfaction**: Poor predictions lead to user frustration and reduced engagement
+| Component | Restaurant Reviews (today) | E-commerce Ratings | Support Tickets |
+|-----------|----------------------------|--------------------|-----------------|
+| Event schema | `review_id`, `text`, `👍/👎` | `order_id`, `stars` | `ticket_id`, `resolution_yes/no` |
+| Feature store | TF-IDF + fastText | Product metadata | BERT embeddings |
+| Model head | Sentiment classifier | Rating predictor | Intent classifier |
 
-## Proposed Extension: Continuous Learning Pipeline with Automated Re-training
+Only the schema and training script swap out; Kafka topics, Kubeflow pipeline, and Istio rollout stay unchanged. Any team with user feedback can adopt the pattern.
 
-### Architecture Overview
+---
 
-The proposed extension implements a **production-ready continuous learning system** that automatically ingests user feedback, validates data quality, retrains models, and deploys improved versions with rigorous safety checks.
+## 4 Experiment Plan
 
-![Continuous Learning Architecture](images/continuous-learning-architecture.png)
+| Parameter | Control | Treatment |
+|-----------|---------|-----------|
+| Model | Current static (v1) | Continuous-learning (v2) |
+| Traffic share | 50 % | 50 % |
+| Duration | 90 days |
+| KPIs | Accuracy on feedback labels, feedback rate, manual interventions, deployment failures |
+| Success | +10 % accuracy, +15 % feedback, −50 % manual work, ≤1 % failures (p < 0.05) |
 
-*Figure 1: Proposed Continuous Learning Pipeline Architecture*
+Progress will be visible on a Grafana dashboard (`grafana-dashboard-continuous.json`). We annotate re-train events and canary start/stop to prove cause and effect.
 
-### Core Components
+---
 
-#### 1. Feedback Data Ingestion Service
-**Purpose**: Capture and store user feedback in a structured format for model training
+## 5 Implementation Artefacts
 
-**Implementation**:
-- **Kafka/Event Streaming**: Real-time ingestion of feedback events from `app-frontend`
-- **Data Validation**: Schema validation, anomaly detection, and quality checks
-- **Storage Layer**: PostgreSQL/MongoDB for structured feedback storage with versioning
-- **Data Enrichment**: Augment feedback with metadata (timestamp, user session, prediction confidence)
+| File / Resource | Purpose |
+|-----------------|---------|
+| `mlops/retraining/retrain-pipeline.yaml` | Defines the Kubeflow workflow (ingest → train → test → register) |
+| `mlops/drift_detector.py` | Statistical drift monitor publishing Prometheus metrics |
+| `helm/istio/continuous-canary.yaml` | Gateway, VirtualService, DestinationRule with 90/10 split & Sticky Sessions |
+| `docs/images/continuous-learning-architecture.png` | Architecture diagram used above |
+| `grafana/grafana-dashboard-continuous.json` | Importable dashboard |
 
-#### 2. Intelligent Data Curation Module
-**Purpose**: Ensure high-quality training data through automated filtering and active learning
+---
 
-**Features**:
-- **Disagreement Detection**: Identify samples where user feedback conflicts with model predictions
-- **Active Learning**: Prioritize uncertain predictions for human review
-- **Data Deduplication**: Prevent training on duplicate or near-duplicate samples
-- **Bias Detection**: Monitor for demographic or topic bias in feedback patterns
-- **Quality Scoring**: Implement confidence-based filtering to exclude low-quality samples
+## Related Work
 
-#### 3. Automated Re-training Service
-**Purpose**: Continuously retrain models using accumulated feedback data
+### Industry Examples
+| # | Project | Key Take-aways | Link |
+|---|---------|---------------|------|
+| 1 | **Continuous Training & Deployment in MLOps** | Shows how automation, monitoring, and feedback loops form the backbone of robust ML lifecycles. | [Medium](https://rihab-feki.medium.com/mlops-02-7-things-you-need-to-learn-about-continuous-training-continuous-deployment-f3ec31d969e3) |
+| 2 | **Google TFX (TensorFlow Extended)** | Demonstrates a production pipeline that performs continuous training, validation, and safe rollout. | [Google AI Blog](https://ai.googleblog.com/2017/09/introducing-tfx-tensorflow-extended.html) |
+| 3 | **Uber Michelangelo** | Describes an end-to-end platform with real-time feature serving and automatic model updates. | [Uber Engineering](https://eng.uber.com/michelangelo-machine-learning-platform/) |
 
-**Training Strategy**:
-- **Incremental Learning**: Update model weights using new data while preserving existing knowledge
-- **Periodic Full Retraining**: Complete model retraining using historical + feedback data
-- **Multi-Model Training**: Train multiple model variants for A/B testing
-- **Hyperparameter Optimization**: Automated tuning using Optuna or similar frameworks
+### Open-Source Tools & Frameworks
+| # | Tool | Why We Care | Link |
+|---|------|-------------|------|
+| 1 | **MLflow** | Provides experiment tracking and a model registry—ideal for storing and promoting re-trained models. | [Documentation](https://mlflow.org/docs/latest/index.html) |
+| 2 | **Kubeflow** | Orchestrates Kubernetes-native pipelines; we use it for scheduled re-training and validation. | [Docs](https://www.kubeflow.org/docs/) |
+| 3 | **Apache Kafka** | Enables real-time ingestion of user feedback and event-driven processing for our pipeline triggers. | [Streams Docs](https://kafka.apache.org/documentation/streams/) |
 
-#### 4. Model Validation and Safety Gates
-**Purpose**: Ensure new models meet quality standards before deployment
+---
 
-**Validation Pipeline**:
-- **Automated Testing**: Run existing ML test suite (`tests/test_model.py`, `tests/test_infra.py`)
-- **Performance Benchmarks**: Compare new model against current production model on held-out test sets
-- **Drift Detection**: Monitor for statistical changes in model behavior
-- **A/B Testing**: Gradual rollout with statistical significance testing
-- **Rollback Mechanisms**: Automatic reversion if performance degrades
+## 7 Conclusion
 
-#### 5. Deployment Orchestration
-**Purpose**: Seamlessly deploy validated models to production
+By closing the feedback loop we:
 
-**Features**:
-- **Canary Deployments**: Gradual traffic shifting using Istio traffic management
-- **Blue-Green Deployments**: Zero-downtime model updates
-- **Model Registry**: Version control and metadata tracking for all model artifacts
-- **Monitoring Integration**: Real-time performance tracking post-deployment
+* **Stop accuracy drift** and learn from every new review.
+* **Save engineering time** through hands-off re-training and deployment.
+* **Create a reusable template** for any domain that collects user feedback.
 
-### Experimental Validation Framework
-
-To objectively measure the effectiveness of this extension, we propose a **comprehensive experimental design**:
-
-#### A/B Test Design
-- **Control Group**: Current static model deployment (50% traffic)
-- **Treatment Group**: Continuous learning model (50% traffic)
-- **Duration**: 90-day experiment period
-- **Sample Size**: Minimum 10,000 predictions per group for statistical significance
-
-#### Key Performance Indicators (KPIs)
-1. **Model Accuracy Metrics**
-   - Prediction accuracy on user-labeled feedback data
-   - F1-score improvements over time
-   - Confusion matrix analysis for sentiment classifications
-
-2. **User Engagement Metrics**
-   - Feedback submission rate (`frontend_feedback_rating_total`)
-   - User session duration and interaction depth
-   - Task completion rates for sentiment analysis workflows
-
-3. **Operational Metrics**
-   - Model deployment frequency and success rate
-   - Time-to-deployment for model improvements
-   - Resource utilization (compute, storage, network)
-
-4. **Business Impact Metrics**
-   - User satisfaction scores (if available)
-   - Model prediction confidence trends
-   - Cost per accurate prediction
-
-#### Success Criteria
-The extension will be considered successful if:
-1. **Accuracy Improvement**: ≥10% relative improvement in prediction accuracy (p < 0.05)
-2. **Engagement Increase**: ≥15% increase in user feedback submission rate (p < 0.05)
-3. **Operational Efficiency**: ≥50% reduction in manual model update interventions
-4. **System Reliability**: ≤1% model deployment failure rate during the experiment period
-
-### Related Work and Inspiration
-
-This extension draws inspiration from several industry best practices and research developments:
-
-#### Industry Examples
-1. **Continuous Training and Deployment in MLOps** [[Medium: 7 Things You Need to Learn About Continuous Training & Continuous Deployment]](https://rihab-feki.medium.com/mlops-02-7-things-you-need-to-learn-about-continuous-training-continuous-deployment-f3ec31d969e3)
-    - Highlights best practices for implementing continuous training and deployment in ML systems
-    - Discusses automation, monitoring, and feedback loops as key components for robust model lifecycle management
-
-2. **Google's TFX (TensorFlow Extended)** [[Google AI Blog]](https://ai.googleblog.com/2017/09/introducing-tfx-tensorflow-extended.html)
-   - Production ML pipeline with continuous training and validation
-   - Automated model deployment with safety checks
-
-3. **Uber's Michelangelo Platform** [[Uber Engineering]](https://eng.uber.com/michelangelo-machine-learning-platform/)
-   - End-to-end ML platform supporting continuous learning workflows
-   - Real-time feature serving and model updates
-
-#### Open Source Tools and Frameworks
-1. **MLflow** [[MLflow Documentation]](https://mlflow.org/docs/latest/index.html)
-   - Model registry and experiment tracking
-   - Integration patterns for continuous learning pipelines
-
-2. **Kubeflow** [[Kubeflow Documentation]](https://www.kubeflow.org/docs/)
-   - Kubernetes-native ML workflows
-   - Pipeline orchestration for continuous training
-
-3. **Apache Kafka** [[Kafka Streams Documentation]](https://kafka.apache.org/documentation/streams/)
-   - Stream processing for real-time data ingestion
-   - Event-driven architecture for ML pipelines
+This extension directly removes our biggest release-engineering pain point and positions the project for long-term, data-driven improvement.
