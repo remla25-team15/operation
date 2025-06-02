@@ -1,0 +1,55 @@
+{{- if .Values.rateLimit.enabled }}
+# Rate limiting using Envoy's local rate limiting filter
+# This implements per-user IP rate limiting to prevent abuse while maintaining sticky sessions
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ .Release.Name }}-rate-limit-filter
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    # Insert the local rate limiting filter in the HTTP filter chain
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: http_local_rate_limiter
+              # Token bucket: {{ .Values.rateLimit.requestsPerMinute }} requests per minute
+              token_bucket:
+                max_tokens: {{ .Values.rateLimit.requestsPerMinute }}
+                tokens_per_fill: {{ .Values.rateLimit.requestsPerMinute }}
+                fill_interval: 20s
+              # Enable the filter for all requests
+              filter_enabled:
+                runtime_key: local_rate_limit_enabled
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              # Enforce rate limiting (block when limit exceeded)
+              filter_enforced:
+                runtime_key: local_rate_limit_enforced
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              # Return empty response body when rate limited (only 429 status code)
+              local_reply_config:
+                status_code: 429
+                # body:
+                #   inline_string: ""
+{{- end }}

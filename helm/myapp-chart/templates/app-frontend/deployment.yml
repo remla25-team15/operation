@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: app-frontend
-          image: "{{ .Values.appFrontend.image.repository }}:v3.1.0"
+          image: "{{ .Values.appFrontend.image.repository }}:{{ .Values.appFrontend.image.tag }}"
           ports:
             - containerPort: {{ .Values.appFrontend.port }}
           env:
