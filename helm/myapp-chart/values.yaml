@@ -107,7 +107,7 @@ appFrontend:
   replicaCount: 2
   image:
     repository: ghcr.io/remla25-team15/app-frontend
-    tag: "v3.1.0"
+    tag: "v3.3.0"
   hostIP: "0.0.0.0"
   configMapName: "app-frontend-config"
   appServiceHost: "app-service"
@@ -135,7 +135,6 @@ modelService:
   modelFileName: c2_Classifier_Sentiment_Model.pkl
   secrets:
     resource_base_url: aHR0cHM6Ly9naXRodWIuY29tL3JlbWxhMjUtdGVhbTE1L21vZGVsLXRyYWluaW5nL3JlbGVhc2VzL2Rvd25sb2FkLw==
-
   host: "model-service"
   servicePort: 80
 
