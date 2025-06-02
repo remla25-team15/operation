@@ -151,5 +151,5 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 --Aiman--
 
-- created PR: (related to )
-- approved PR: (related to )
+- created PR: https://github.com/remla25-team15/operation/pull/41#pullrequestreview-2885586908 (related to A5)
+- approved PR: https://github.com/remla25-team15/app-frontend/pull/12(related to A5)
