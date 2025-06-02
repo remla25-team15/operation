@@ -1,8 +1,8 @@
 # Week 2:
 
 -- Alessandro: --
-Created PR: https://github.com/remla25-team15/app-frontend/pull/2 \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/4
+Created PR: https://github.com/remla25-team15/app-frontend/pull/2 (related to A1)\
+Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1)
 
 -- Dmytro: --
 Created PR: https://github.com/remla25-team15/model-training/pull/3 (related to A1) \
@@ -36,9 +36,9 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Alessandro: --
 
-- created PR: https://github.com/remla25-team15/operation/pull/18
-- approved PR: https://github.com/remla25-team15/operation/pull/9
-- created issues: https://github.com/remla25-team15/operation/issues?q=is%3Aissue%20state%3Aclosed
+- created PR: https://github.com/remla25-team15/operation/pull/18 (Related to A2)
+- approved PR: https://github.com/remla25-team15/operation/pull/9 (Related to A2)
+- created issues: https://github.com/remla25-team15/operation/issues?q=is%3Aissue%20state%3Aclosed (Related to A2)
 
 -- Dmytro: --
 
@@ -128,9 +128,10 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Alessandro: --
 
-- created PR: (related to )
-- created PR: (related to )
-- approved PR: (related to )
+- created PR: https://github.com/remla25-team15/operation/pull/45 (related to A5)
+- created PR: https://github.com/remla25-team15/operation/pull/47 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/44 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/46 (related to A5)
 
 -- Dmytro: --
 
@@ -139,10 +140,8 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 
 -- Shreyas: --
 
-- created PR: (related to )
-- created PR: (related to )
-
-- approved PR: (related to )
+- created PR: https://github.com/remla25-team15/operation/pull/44 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/42 (related to A5)
 
 -- Liwia: --
 
