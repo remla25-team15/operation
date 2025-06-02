@@ -37,7 +37,7 @@ The next invocations should be faster.
 
 ```zsh
 Current relevant entries in /etc/hosts after script execution:
-192.168.56.80 app.local kiali.local
+192.168.56.80 app.local kiali.local prometheus.local
 192.168.56.81 dashboard.local grafana.local
 ```
 
