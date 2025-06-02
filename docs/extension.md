@@ -20,7 +20,8 @@
 
 ![Continuous Learning Architecture](images/train_loop.webp)
 
-*Figure 1 — Data flows from the user back to the model through Kafka, Kubeflow, and Istio.*
+*Figure 1 — Data flows from the user back to the model [[1]](https://rihab-feki.medium.com/mlops-02-7-things-you-need-to-learn-about-continuous-training-continuous-deployment-f3ec31d969e3)*
+
 
 1. **Feedback Ingestion** – The frontend emits a *feedback* event for every prediction. We stream these events through Kafka, run schema checks, and store them in `postgres://feedback`.
 2. **Data Curation** – A lightweight service scores, deduplicates, and tags new samples for re-training.
