@@ -147,7 +147,7 @@ Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17
 -- Liwia: --
 
 - created PR: (related to )
-- approved PR:  (related to )
+- approved PR: https://github.com/remla25-team15/operation/pull/41 (related to A5)
 
 --Aiman--
 
