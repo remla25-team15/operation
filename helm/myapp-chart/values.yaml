@@ -107,7 +107,7 @@ appFrontend:
   replicaCount: 2
   image:
     repository: ghcr.io/remla25-team15/app-frontend
-    tag: "v3.3.0"
+    tag: "v3.1.0"
   hostIP: "0.0.0.0"
   configMapName: "app-frontend-config"
   appServiceHost: "app-service"
