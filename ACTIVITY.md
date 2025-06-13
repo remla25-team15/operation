@@ -6,21 +6,23 @@ Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A
 
 -- Dmytro: --
 Created PR: https://github.com/remla25-team15/model-training/pull/3 (related to A1) \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1) \
+Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1)
 
 -- Shreyas: --
-Created PR: https://github.com/remla25-team15/operation/pull/2 (related to A1) \
-Created PR: https://github.com/remla25-team15/app-service/pull/1 (related to A1) \
-Created PR: https://github.com/remla25-team15/model-service/pull/4 (related to A1) \
-Created PR: https://github.com/remla25-team15/model-service/pull/5 (related to A1) \
-Created PR: https://github.com/remla25-team15/app-frontend/pull/9 (related to A1) \
-Created PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1) \
-Approved PR: https://github.com/remla25-team15/app-frontend/pull/7 (related to A1) \
-Approved PR: https://github.com/remla25-team15/lib-version/pull/2 (related to A1) \
 
-Created Issue: https://github.com/remla25-team15/app-frontend/issues/6#event-17539543009 \
-Created Issue: https://github.com/remla25-team15/app-frontend/issues/5#issuecomment-2855178564 \
-Created Issue: https://github.com/remla25-team15/model-service/issues/2#event-17540932886 \
+- Created PR: https://github.com/remla25-team15/operation/pull/2 (related to A1)
+- Created PR: https://github.com/remla25-team15/app-service/pull/1 (related to A1)
+- Created PR: https://github.com/remla25-team15/model-service/pull/4 (related to A1)
+- Created PR: https://github.com/remla25-team15/model-service/pull/5 (related to A1)
+- Created PR: https://github.com/remla25-team15/app-frontend/pull/9 (related to A1)
+- Created PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1)
+
+- Approved PR: https://github.com/remla25-team15/app-frontend/pull/7 (related to A1)
+- Approved PR: https://github.com/remla25-team15/lib-version/pull/2 (related to A1)
+
+- Created Issue: https://github.com/remla25-team15/app-frontend/issues/6 (related to A1)
+- Created Issue: https://github.com/remla25-team15/app-frontend/issues/5 (related to A1)
+- Created Issue: https://github.com/remla25-team15/model-service/issues/2 (related to A1)
 
 -- Liwia: --
 
