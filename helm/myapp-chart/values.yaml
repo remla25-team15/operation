@@ -177,9 +177,9 @@ env:
   FLASK_ENV: "production"
 
 # Rate limiting configuration
-# This implements local rate limiting using Envoy filters for individual users
+# This implements per-client rate limiting using Envoy filters for individual users
 # Rate limiting is based on source IP address to maintain sticky sessions
 rateLimit:
   enabled: true
-  # Requests per minute allowed per user IP address
-  requestsPerMinute: 200
+  # Requests per minute allowed per individual user (as per assignment requirement)
+  requestsPerMinute: 10

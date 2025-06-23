@@ -1,6 +1,6 @@
 {{- if .Values.rateLimit.enabled }}
 # Rate limiting using Envoy's local rate limiting filter
-# This implements per-user IP rate limiting to prevent abuse while maintaining sticky sessions
+# This implements per-client IP rate limiting to prevent abuse while maintaining sticky sessions
 apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
@@ -30,11 +30,11 @@ spec:
             type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
             value:
               stat_prefix: http_local_rate_limiter
-              # Token bucket: {{ .Values.rateLimit.requestsPerMinute }} requests per minute
+              # Per-client rate limiting: {{ .Values.rateLimit.requestsPerMinute }} requests per minute per source IP
               token_bucket:
                 max_tokens: {{ .Values.rateLimit.requestsPerMinute }}
                 tokens_per_fill: {{ .Values.rateLimit.requestsPerMinute }}
-                fill_interval: 20s
+                fill_interval: 60s  # 1 minute interval for proper per-minute limiting
               # Enable the filter for all requests
               filter_enabled:
                 runtime_key: local_rate_limit_enabled
@@ -47,9 +47,16 @@ spec:
                 default_value:
                   numerator: 100
                   denominator: HUNDRED
+              # Per-client rate limiting based on source IP
+              descriptors:
+              - entries:
+                - key: remote_address
+                rate_limit:
+                  unit: minute
+                  requests_per_unit: {{ .Values.rateLimit.requestsPerMinute }}
               # Return empty response body when rate limited (only 429 status code)
               local_reply_config:
                 status_code: 429
-                # body:
-                #   inline_string: ""
+                body:
+                  inline_string: "Rate limit exceeded. You are making requests too quickly. Please wait before trying again."
 {{- end }}
