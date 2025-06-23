@@ -1,6 +1,7 @@
 {{- if .Values.rateLimit.enabled }}
-# Rate limiting using Envoy's local rate limiting filter
-# This implements per-client IP rate limiting to prevent abuse while maintaining sticky sessions
+# Rate limiting using Envoy's local rate limiting filter with per-user buckets
+# This implements per-user rate limiting using source IP to create separate buckets per user
+# Similar to sticky sessions approach, each user (source IP) gets their own rate limit bucket
 apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
@@ -11,7 +12,7 @@ spec:
     labels:
       istio: ingressgateway
   configPatches:
-    # Insert the local rate limiting filter in the HTTP filter chain
+    # First, add a filter to inject the source IP as a header for rate limiting
     - applyTo: HTTP_FILTER
       match:
         context: GATEWAY
@@ -24,13 +25,36 @@ spec:
       patch:
         operation: INSERT_BEFORE
         value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inline_code: |
+              function envoy_on_request(request_handle)
+                -- Extract the source IP and add it as a header for rate limiting
+                local headers = request_handle:headers()
+                local source_ip = request_handle:streamInfo():downstreamRemoteAddress():ip()
+                headers:add("x-user-ip", source_ip)
+              end
+    # Then, add the local rate limiting filter that uses the injected header
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.lua"
+      patch:
+        operation: INSERT_AFTER
+        value:
           name: envoy.filters.http.local_ratelimit
           typed_config:
             "@type": type.googleapis.com/udpa.type.v1.TypedStruct
             type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
             value:
               stat_prefix: http_local_rate_limiter
-              # Per-client rate limiting: {{ .Values.rateLimit.requestsPerMinute }} requests per minute per source IP
+              # Default token bucket configuration (fallback)
               token_bucket:
                 max_tokens: {{ .Values.rateLimit.requestsPerMinute }}
                 tokens_per_fill: {{ .Values.rateLimit.requestsPerMinute }}
@@ -47,14 +71,20 @@ spec:
                 default_value:
                   numerator: 100
                   denominator: HUNDRED
-              # Per-client rate limiting based on source IP
+              # Configure per-user rate limiting using the injected source IP header
+              # This creates separate rate limit counters for each unique source IP
               descriptors:
-              - entries:
-                - key: remote_address
-                rate_limit:
-                  unit: minute
-                  requests_per_unit: {{ .Values.rateLimit.requestsPerMinute }}
-              # Return empty response body when rate limited (only 429 status code)
+                - entries:
+                    - key: "user_ip"
+                      # Use the header we injected with the source IP
+                      request_headers:
+                        header_name: "x-user-ip"
+                        descriptor_key: "user_ip"
+                  token_bucket:
+                    max_tokens: {{ .Values.rateLimit.requestsPerMinute }}
+                    tokens_per_fill: {{ .Values.rateLimit.requestsPerMinute }}
+                    fill_interval: 60s
+              # Return response when rate limited
               local_reply_config:
                 status_code: 429
                 body:
