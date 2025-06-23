@@ -154,3 +154,34 @@ Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A
 
 - created PR: https://github.com/remla25-team15/operation/pull/41#pullrequestreview-2885586908 (related to A5)
 - approved PR: https://github.com/remla25-team15/app-frontend/pull/12(related to A5)
+
+
+# Week 10:
+
+-- Alessandro: --
+
+- created PR: https://github.com/remla25-team15/app-frontend/pull/15 (related to A5)
+- created PR: https://github.com/remla25-team15/operation/pull/49 (related to A5)
+- approved PR: https://github.com/remla25-team15/app-frontend/issues/14 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/49 (related to A5)
+
+-- Dmytro: --
+
+- created PR: 
+- approved PR: 
+
+-- Shreyas: --
+
+- created PR: 
+- approved PR: 
+
+-- Liwia: --
+
+- created PR: 
+- approved PR: 
+
+--Aiman--
+
+- created PR: 
+- approved PR: 
+
