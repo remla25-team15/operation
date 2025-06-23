@@ -115,7 +115,7 @@ appFrontend:
     v1:
       tag: "v3.3.1"
     v2:
-      tag: "v3.3.2"
+      tag: "v3.3.1-feat-ui-icon"
 
 appService:
   port: 5000
