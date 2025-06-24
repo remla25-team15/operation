@@ -111,6 +111,6 @@ spec:
           prefix: /
     route:
       - destination:
-          host: prometheus.istio-system.svc.cluster.local
+          host: prometheus-operated.monitoring.svc.cluster.local
           port:
             number: 9090
