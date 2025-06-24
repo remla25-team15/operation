@@ -27,8 +27,8 @@ fi
 # Step 3: Wait for Ansible ping to succeed for all nodes
 echo "Waiting for Ansible ping to succeed on all nodes..."
 
-# Try up to 10 times with a 10-second interval
-MAX_RETRIES=10
+# Try up to 15 times with a 10-second interval
+MAX_RETRIES=15
 SUCCESS=false
 for i in $(seq 1 $MAX_RETRIES); do
     echo "Attempt $i..."
@@ -37,7 +37,7 @@ for i in $(seq 1 $MAX_RETRIES); do
         SUCCESS=true
         break
     fi
-    sleep 10
+    sleep 3
 done
 
 if [ "$SUCCESS" != true ]; then
@@ -45,18 +45,11 @@ if [ "$SUCCESS" != true ]; then
     exit 1
 fi
 
-# Step 4: Retrieve Kubernetes admin config
-echo "Retrieving kubeconfig from ctrl node..."
-vagrant ssh ctrl -c "sudo cat /etc/kubernetes/admin.conf" > ../kubeconfig || {
-    echo -e "${RED}Failed to retrieve kubeconfig...${NC}"
-    exit 1
-}
-
-# Step 5: Set the KUBECONFIG environment variable
+# Step 4: Set the KUBECONFIG environment variable
 export KUBECONFIG=$(pwd)/kubeconfig
 echo "KUBECONFIG set to $KUBECONFIG"
 
-# Step 6: Check if all nodes are ready
+# Step 5: Check if all nodes are ready
 echo -e "${YELLOW}Waiting for all nodes to be Ready...${NC}"
 
 TIMEOUT=120  # max seconds to wait
@@ -87,7 +80,7 @@ while true; do
   fi
 done
 
-# Step 7: Run finalization playbook
+# Step 6: Run finalization playbook
 echo -e "${YELLOW}Running finalization playbook...${NC}"
 ansible-playbook finalization.yml || {
     echo -e "${RED}Finalization playbook failed.${NC}"
