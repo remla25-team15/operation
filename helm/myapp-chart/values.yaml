@@ -186,4 +186,4 @@ env:
 rateLimit:
   enabled: true
   # Requests per minute allowed per individual user (separate bucket per source IP)
-  requestsPerMinute: 10
+  requestsPerMinute: 200
