@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-model-service-deployment
+  name: {{ .Release.Name }}-model-service-v1-deployment
   labels:
     app: model-service
 spec:
@@ -50,7 +50,79 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-model-service-config
-                  key: model_version
+                  key: model_version.v1
+            - name: MODEL_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: model_file_name
+            - name: CV_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: cv_file_name
+          volumeMounts:
+            - name: model-cache
+              mountPath: /models
+      volumes:
+        - name: model-cache
+          hostPath:
+            path: /mnt/shared/models
+            type: DirectoryOrCreate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-model-service-v2-deployment
+  labels:
+    app: model-service
+spec:
+  replicas: {{ .Values.modelService.replicaCount }}
+  selector:
+    matchLabels:
+      app: model-service
+  template:
+    metadata:
+      labels:
+        app: model-service
+        version: v2
+    spec:
+      containers:
+        - name: model-service
+          image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.versions.v2.tag }}"
+          ports:
+            - containerPort: {{ .Values.modelService.port }}
+          env:
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: flask_env
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: name
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: port
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: host
+            - name: RESOURCE_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-model-service-secrets
+                  key: resource_base_url
+            - name: MODEL_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-model-service-config
+                  key: model_version.v2
             - name: MODEL_FILE_NAME
               valueFrom:
                 configMapKeyRef:

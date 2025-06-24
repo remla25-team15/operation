@@ -7,6 +7,7 @@ data:
   name: {{ .Values.modelService.host | quote }}
   port: {{ .Values.modelService.port | quote }}
   host: {{ .Values.modelService.hostIP | quote }}
-  model_version: {{ .Values.modelService.modelVersion | quote }}
+  model_version.v1: {{ .Values.modelService.versions.v1.modelVersion | quote }}
+  model_version.v2: {{ .Values.modelService.versions.v2.modelVersion | quote }}
   model_file_name: {{ .Values.modelService.modelFileName | quote }}
   cv_file_name: {{ .Values.modelService.cvFileName | quote }}

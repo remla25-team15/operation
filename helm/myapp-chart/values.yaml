@@ -126,6 +126,11 @@ appService:
   hostIP: "0.0.0.0"
   host: "app-service"
   servicePort: 80
+  versions:
+    v1:
+      tag: "v2.0.0"
+    v2:
+      tag: "v2.0.2"
 
 modelService:
   port: 5001
@@ -141,6 +146,13 @@ modelService:
     resource_base_url: aHR0cHM6Ly9naXRodWIuY29tL3JlbWxhMjUtdGVhbTE1L21vZGVsLXRyYWluaW5nL3JlbGVhc2VzL2Rvd25sb2FkLw==
   host: "model-service"
   servicePort: 80
+  versions:
+    v1:
+      tag: "v2.0.0"
+      modelVersion: v1.1.0
+    v2:
+      tag: "v2.0.1-alpha.fix-release-workflow.3"
+      modelVersion: v1.1.1
 
 prometheus:
   namespace: "monitoring"
