@@ -1,18 +1,18 @@
-{{/*apiVersion: monitoring.coreos.com/v1*/}}
-{{/*kind: ServiceMonitor*/}}
-{{/*metadata:*/}}
-{{/*  name: {{ .Release.Name }}-servicemonitor*/}}
-{{/*  namespace: {{ .Values.prometheus.namespace }}*/}}
-{{/*  labels:*/}}
-{{/*    release: {{ .Values.prometheus.release }}*/}}
-{{/*spec:*/}}
-{{/*  namespaceSelector:*/}}
-{{/*    matchNames:*/}}
-{{/*      - {{ .Values.serviceMonitor.targetNamespace }}*/}}
-{{/*  selector:*/}}
-{{/*    matchLabels:*/}}
-{{/*      app: {{ .Values.serviceMonitor.targetApp }}*/}}
-{{/*  endpoints:*/}}
-{{/*  - interval: {{ .Values.serviceMonitor.interval }}*/}}
-{{/*    port: {{ .Values.serviceMonitor.port }}*/}}
-{{/*    path: {{ .Values.serviceMonitor.path }}*/}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-servicemonitor
+  namespace: {{ .Values.prometheus.namespace }}
+  labels:
+    release: {{ .Values.prometheus.release }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.serviceMonitor.targetNamespace }}
+  selector:
+    matchLabels:
+      app: {{ .Values.serviceMonitor.targetApp }}
+  endpoints:
+  - interval: {{ .Values.serviceMonitor.interval }}
+    port: {{ .Values.serviceMonitor.port }}
+    path: {{ .Values.serviceMonitor.path }}

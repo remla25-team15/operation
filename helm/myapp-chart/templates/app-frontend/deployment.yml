@@ -14,10 +14,11 @@ spec:
       labels:
         app: app-frontend
         version: v1
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: {{ .Values.serviceMonitor.port }}
-        prometheus.io/path: "/metrics"
+{{/*      annotations:*/}}
+{{/*        prometheus.io/scrape: "true"*/}}
+{{/*        prometheus.io/port: "{{ .Values.appFrontend.port }}"*/}}
+{{/*        prometheus.io/path: "/metrics"*/}}
+
     spec:
       containers:
         - name: app-frontend
@@ -67,10 +68,10 @@ spec:
       labels:
         app: app-frontend
         version: v2
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: {{ .Values.serviceMonitor.port }}
-        prometheus.io/path: "/metrics"
+{{/*      annotations:*/}}
+{{/*        prometheus.io/scrape: "true"*/}}
+{{/*        prometheus.io/port: "{{ .Values.appFrontend.port }}"*/}}
+{{/*        prometheus.io/path: "/metrics"*/}}
     spec:
       containers:
         - name: app-frontend
