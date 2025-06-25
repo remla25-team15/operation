@@ -97,11 +97,10 @@ ssh -i ~/.ssh/ansible-provision-key vagrant@192.168.56.<HOST>
 ansible-playbook -i inventory.cfg ctrl.yml
 ```
 
-2. To manage your kubernetes cluster from the host machine copy the kubeconfig file from the controller VM
-   and export it for kubectl to use
+2. To manage your kubernetes cluster from the host machine you need to have an environment variable `KUBECONFIG` that points to this file
+   for kubectl to use
 
 ```zsh
- vagrant ssh ctrl -c "sudo cat /etc/kubernetes/admin.conf" > kubeconfig
  export KUBECONFIG=$(pwd)/kubeconfig
 ```
 
