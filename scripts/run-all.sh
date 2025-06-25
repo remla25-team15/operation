@@ -57,8 +57,20 @@ export KUBECONFIG="$(pwd)/provisioning/kubeconfig"
 # Enable sidecar injection 
 kubectl label ns default istio-injection=enabled
 
+echo -e "${BLUE}Deploying monitoring with Helm...${NC}"
+helm upgrade --install monitoring ./helm/monitoring-chart || {
+    echo -e "${RED}Helm deployment failed. Exiting.${NC}"
+    exit 1
+}
+
+echo -e "${BLUE}Deploying istio config with Helm...${NC}"
+helm upgrade --install istio ./helm/istio-config-chart || {
+    echo -e "${RED}Helm deployment failed. Exiting.${NC}"
+    exit 1
+}
+
 echo -e "${BLUE}Deploying application with Helm...${NC}"
-helm upgrade --install myapp ./helm/myapp-chart || {
+helm upgrade --install myapp ./helm/app-chart || {
     echo -e "${RED}Helm deployment failed. Exiting.${NC}"
     exit 1
 }
@@ -83,7 +95,7 @@ else
 fi
 
 echo -e "${YELLOW}Dashboard URL:${NC} https://dashboard.local/"
-echo -e "${YELLOW}App URL:${NC} http://app.local/"
+echo -e "${YELLOW}App URL:${NC} http://myapp.app.local/"
 echo -e "${YELLOW}Grafana URL:${NC} http://grafana.local/ (Credentials: admin / admin - PLEASE CHANGE PASSWORD)"
 echo -e "${YELLOW}Kiali URL:${NC} http://kiali.local/"
 echo -e "${YELLOW}Prometheus URL:${NC} http://prometheus.local/"

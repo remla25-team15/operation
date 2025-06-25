@@ -36,8 +36,8 @@ fi
 echo -e "${GREEN}Generic Ingress Controller IP: $INGRESS_IP${NC}"
 
 # Hostnames to ensure are on the same line
-ISTIO_HOSTNAMES="app.local kiali.local prometheus.local"
-INGRESS_HOSTNAMES="dashboard.local grafana.local"
+ISTIO_HOSTNAMES="myapp.app.local kiali.local prometheus.local grafana.local"
+INGRESS_HOSTNAMES="dashboard.local"
 
 # Combined list of all hostnames managed by this script for filtering
 ALL_MANAGED_HOSTNAMES="${ISTIO_HOSTNAMES} ${INGRESS_HOSTNAMES}"
@@ -81,4 +81,4 @@ update_hosts_file "$ISTIO_IP" "$INGRESS_IP"
 
 echo -e "${BLUE}Current relevant entries in /etc/hosts after script execution:${NC}"
 # Display only the lines that contain any of the managed hostnames
-grep -E "\s+(dashboard\.local|app\.local|grafana\.local|kiali\.local)" /etc/hosts || true
+grep -E "\s+(dashboard\.local|myapp\.app\.local|grafana\.local|kiali\.local)" /etc/hosts || true
