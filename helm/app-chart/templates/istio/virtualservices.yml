@@ -14,7 +14,7 @@ metadata:
   name: {{ .Release.Name }}-frontend-vs
 spec:
   hosts:
-  - "{{ .Values.ingress.host }}"
+  - "{{ .Release.Name }}.{{ .Values.ingress.host }}"
   gateways:
   - {{ .Release.Name }}-gateway
   http:
@@ -41,7 +41,7 @@ metadata:
   name: {{ .Release.Name }}-app-service-vs
 spec:
   hosts:
-  - "{{ .Values.ingress.host }}"
+  - "{{ .Release.Name }}.{{ .Values.ingress.host }}"
   gateways:
   - {{ .Release.Name }}-gateway
   http:
@@ -60,7 +60,7 @@ metadata:
   name: {{ .Release.Name }}-model-service-vs
 spec:
   hosts:
-  - "{{ .Values.ingress.host }}"
+  - "{{ .Release.Name }}.{{ .Values.ingress.host }}"
   gateways:
   - {{ .Release.Name }}-gateway
   http:
