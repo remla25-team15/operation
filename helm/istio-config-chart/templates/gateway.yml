@@ -13,3 +13,4 @@ spec:
       hosts:
         - "kiali.local"
         - "prometheus.local"
+        - "grafana.local"
