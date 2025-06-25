@@ -156,6 +156,7 @@ kubectl create secret generic alertmanager-smtp-secret \
 After this you need to upgrade your releases, so run:
 ```bash
 helm upgrade --install myapp helm/app-chart/ -f helm/app-chart/values.yaml
+helm upgrade --install monitoring helm/monitoring-chart/ -f helm/monitoring-chart/values.yaml
 helm upgrade --install myprom prometheus-community/kube-prometheus-stack -n monitoring -f helm/app-chart/values.yaml
 kubectl delete pod -n monitoring alertmanager-myprom-kube-prometheus-sta-alertmanager-0
 ```
