@@ -113,9 +113,9 @@ appFrontend:
   servicePort: 80
   versions:
     v1:
-      tag: "v3.3.1"
+      tag: "v3.3.6"
     v2:
-      tag: "v3.3.1-feat-ui-icon"
+      tag: "v3.3.7-alpha.feature-feedback-icons.1"
 
 appService:
   port: 5000

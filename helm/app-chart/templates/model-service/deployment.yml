@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: model-service
-          image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
+          image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.versions.v1.tag }}"
           ports:
             - containerPort: {{ .Values.modelService.port }}
           env:
