@@ -19,3 +19,12 @@ spec:
       annotations:
         summary: Kubernetes Pod not healthy
         description: "Pod not good"
+
+    - alert: TooManyActiveUsers
+      expr: {{ .Values.prometheusTooManyUsersRule.metric }} > {{ .Values.prometheusTooManyUsersRule.threshold }}
+      for: {{ .Values.prometheusTooManyUsersRule.for }}
+      labels:
+        severity: {{ .Values.prometheusTooManyUsersRule.labels.severity }}
+      annotations:
+        summary: {{ .Values.prometheusTooManyUsersRule.annotations.summary }}
+        description: {{ .Values.prometheusTooManyUsersRule.annotations.description }}
