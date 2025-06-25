@@ -45,8 +45,8 @@ The next invocations should be faster.
 
 ```zsh
 Current relevant entries in /etc/hosts after script execution:
-192.168.56.80 app.local kiali.local prometheus.local
-192.168.56.81 dashboard.local grafana.local
+192.168.56.80 myapp.app.local kiali.local prometheus.local grafana.local
+192.168.56.81 dashboard.local
 ```
 
 > Your /etc/hosts should have these entries (the IP addresses could be different). The `scripts/run-all.sh` script invokes `scripts/update-hosts.sh` script which
@@ -76,13 +76,18 @@ The following command should help with it:
 If you want to install the helm chart manually, you need to enable Istio's automatic sidecar injection:
 
 ```zsh
-kubectl label namespace my-app istio-injection=enabled
+kubectl label ns default istio-injection=enabled
 ```
 
-To install a helm chart, you can run:
+The helm charts are separated into istio-config charts, monitoring charts and application charts.
+This allows us to create multiple releases of the same application while avoiding duplication of the monitoring tools.
+
+To install the helm charts, you can run:
 
 ```zsh
-helm install myapp ./helm/myapp-chart
+helm install monitoring ./helm/monitoring-chart
+helm install istio ./helm/istio-config-chart
+helm install myapp ./helm/app-chart
 ```
 
 To see all helm charts run the following:
@@ -105,6 +110,9 @@ The next invocations should be faster though.
 Unfortunately, all the scripts are bash scripts so you will have to run them in bash (or z shell).
 If you're using Windows, you can still download and use bash (maybe try using git bash).
 If you're stuck with Powershell... helaas pindakaas...
+
+> Note: If you wish to test multiple releases, you can do so by running the `helm install <app-name> ./helm/app-chart` but
+> then you need to update the /etc/hosts file with the name (`<app-name>`) of the new release, e.g. myapp2.app.local on the same line as myapp.app.local
 
 ## Monitoring
 
