@@ -33,7 +33,7 @@ pod-to-pod and service-to-service communication across the cluster.
 # Deployment architecture
 
 Our deployment is organized as a Helm chart and includes several templates for the
-microservices,monitoring components, and service mesh infrastructure. All components are
+microservices, monitoring components, and service mesh infrastructure. All components are
 deployed to a Kubernetes cluster and interact over a service mesh provided by
 Istio.
 
@@ -99,39 +99,53 @@ Each version (v1 and v2) runs in its own pod, and each pod contains:
 - The application container
 - An automatically injected Envoy sidecar (by Istio)
 
+In addition to weighted traffic splitting, the `VirtualService` supports canary routing:
+
+- If a request contains the header `user-group: canary`, it is always routed to version v2.
+- All other requests are subject to a percentage-based split (e.g., 90% to v1, 10% to v2).
+- This enables stable UI experimentation such as A/B testing: version v1 shows traditional feedback buttons, while version v2 presents thumbs-up/down icons.
+
 ###### Deployment Manifest: [templates/app-frontend/deployment.yml](../helm/myapp-chart/templates/app-frontend/deployment.yml)
 
-###### Service Manifest: [templates/app-frontend/deployment.yml](../helm/myapp-chart/templates/app-frontend/service.yml)
+###### Service Manifest: [templates/app-frontend/service.yml](../helm/myapp-chart/templates/app-frontend/service.yml)
 
 ## 3. Backend Application (app-service)
 
 The frontend makes internal calls to `app-service`, a Kubernetes Service that maps to:
 
-- `app-service:v1` deployment.
+- `app-service:v1`
+- `app-service:v2`
 
-This pod also includes:
+The Istio `VirtualService` for this service supports version routing using a custom `label` header:
 
-- Application container
-- Envoy sidecar for mesh traffic management and observability
+- If `label: v1` is sent, the request is routed to `app-service:v1`.
+- If `label: v2` is sent, it goes to `app-service:v2`.
+- If no label is provided, traffic is split 50/50 between the two versions.
 
-The routing here is relatively simple since we only have one version in deployment, but still uses a
-VirtualService and DestinationRule for consistency and telemetry.
+This ensures version consistency between frontend and backend layers during canary rollout or user-group-specific testing.
 
 ###### Deployment Manifest: [templates/app-service/deployment.yml](../helm/myapp-chart/templates/app-service/deployment.yml)
 
-###### Service Manifest: [templates/app-service/deployment.yml](../helm/myapp-chart/templates/app-service/service.yml)
+###### Service Manifest: [templates/app-service/service.yml](../helm/myapp-chart/templates/app-service/service.yml)
 
 ## 4. Model Service (model-service)
 
 `app-service` communicates with `model-service`, which maps to:
 
-- `model-service:v1` deployment.
+- `model-service:v1`
+- `model-service:v2`
 
-Again, the pod runs with a sidecar proxy and is part of the Istio service mesh.
+Just like `app-service`, `model-service` honors the `label` header for routing:
+
+- Requests with `label: v1` go to `model-service:v1`
+- Requests with `label: v2` go to `model-service:v2`
+- If the header is not set, traffic is evenly distributed
+
+This allows tightly controlled testing of updated inference logic alongside stable releases.
 
 ###### Deployment Manifest: [templates/model-service/deployment.yml](../helm/myapp-chart/templates/model-service/deployment.yml)
 
-###### Service Manifest: [templates/model-service/deployment.yml](../helm/myapp-chart/templates/model-service/service.yml)
+###### Service Manifest: [templates/model-service/service.yml](../helm/myapp-chart/templates/model-service/service.yml)
 
 ## 5. Grafana and Passthrough Traffic
 
@@ -152,34 +166,31 @@ and
 resources. This setup allows us to control the percentage of traffic routed to
 each version without modifying service definitions or restarting deployments.
 
-In our deployment, dynamic routing is primarily applied to the `app-frontend`
-component, where we maintain two concurrent versions:
-
-- `app-frontend:v1` – the baseline version of the frontend
-- `app-frontend:v2` – an alternate version served for comparison
-
-The routing behavior is defined in the `VirtualService` associated with
-app-frontend-service. Istio uses [subset-based
-routing](https://istio.io/latest/docs/reference/config/networking/destination-rule/#Subset),
-with each subset corresponding to a specific version (defined via pod labels in
-the DestinationRule).
-
-### Weighted Traffic Split
+## Weighted Traffic Split
 
 The `VirtualService` for `app-frontend-service` performs a weighted split between the two versions:
 
-- 60% of incoming requests are routed to `v1`
-
-- 40% of incoming requests are routed to `v2`
+- 90% of incoming requests are routed to `v1`
+- 10% of incoming requests are routed to `v2`
 
 This logic is applied dynamically by Istio sidecar proxies (Envoy) at runtime,
 allowing real-time control over traffic distribution. These weights can be
 adjusted on-the-fly to gradually shift traffic toward a newer version or to
 perform controlled rollbacks.
 
-### How It Works in the Mesh
+## Header-Based Version Control
+
+Additional routing logic supports header-based selection:
+
+- `user-group: canary` ensures consistent routing to v2 of the frontend.
+- `label: v1` or `label: v2` headers route requests to corresponding versions of app-service and model-service.
+
+This combination of weighted and header-based routing supports advanced deployment strategies such as canary testing, A/B experiments, and safe rollouts.
+
+## How It Works in the Mesh
 
 1. Requests reach the istio-ingressgateway and are routed based on VirtualService host/path rules.
-2. The frontend VirtualService matches the request and evaluates the weighted split.
-3. Based on the defined weights, traffic is routed to either the v1 or v2 Pod.
-4. Each Pod includes an Istio sidecar, which intercepts traffic and forwards it to the application container.
+2. The frontend VirtualService evaluates the `user-group` header and weighted rules.
+3. The frontend makes requests to `app-service` and includes the `label` header for downstream consistency.
+4. The backend services route traffic based on the `label` header or fall back to 50/50 splits.
+5. Each Pod includes an Istio sidecar, which intercepts traffic and forwards it to the application container.

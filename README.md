@@ -106,6 +106,81 @@ Unfortunately, all the scripts are bash scripts so you will have to run them in 
 If you're using Windows, you can still download and use bash (maybe try using git bash).
 If you're stuck with Powershell... helaas pindakaas...
 
+## Canary and Label-Based Routing with Istio
+
+This deployment demonstrates Istio’s advanced routing capabilities with two
+mechanisms:
+
+1. **Frontend Canary Release** using the `user-group` header
+2. **Backend Version Targeting** using the `label` header for `app-service` and
+   `model-service`
+
+---
+
+### Frontend Canary Testing (Thumbs UI vs. Text Buttons)
+
+Users with the `user-group: canary` header are always routed to the new version
+(v2) of the frontend, which displays thumbs up/down icons instead of
+traditional buttons. Others receive the standard version (v1).
+
+```zsh
+❯ curl -s -H "user-group: canary" app.local | grep -A18 "Prediction"
+      <p>Prediction: <span id="prediction">-</span></p>
+      <div class="feedback-buttons">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrrj8k1ctQ7cFF-TQckBNjb7n923nW1tckzQ&s"
+          alt="Thumbs Up"
+          onclick="sendFeedback(true)"
+          title="Correct"
+        />
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_NASV4hz9MwBhV5px5ejDKW0Ws818puZJcA&s"
+          alt="Thumbs Down"
+          onclick="sendFeedback(false)"
+          title="Incorrect"
+        />
+      </div>
+
+      <div id="feedback-message"></div>
+    </div>
+```
+
+While the main release has buttons:
+
+```zsh
+❯ curl -s app.local | grep -A5 "Prediction"
+      <p>Prediction: <span id="prediction">-</span></p>
+      <button onclick="sendFeedback(true)">Correct</button>
+      <button onclick="sendFeedback(false)">Incorrect</button>
+      <div id="feedback-message"></div>
+    </div>
+```
+
+---
+
+### Backend Version Control with `label` Header
+
+The `label` header controls routing for both `app-service` and `model-service`.
+This ensures consistent backend behavior per request.
+
+```zsh
+
+# Route explicitly to v1 versions curl -H "label: v1"
+❯ curl -H "label: v1" app.local/app/api/version
+
+# Route explicitly to v2 versions curl -H "label: v2" app.local/app/api/version
+❯ curl -H "label: v2" app.local/app/api/version
+```
+
+If no `label` is provided, traffic is split 50/50 between v1 and v2 for both
+services.
+
+### Consistency Guarantee
+
+Using headers for routing ensures users consistently interact with the correct
+version of both frontend and backend services during testing, canary rollout,
+or A/B experiments.
+
 ## Monitoring
 
 ### Prometheus
