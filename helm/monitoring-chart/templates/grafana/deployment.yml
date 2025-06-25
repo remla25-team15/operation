@@ -5,7 +5,7 @@ metadata:
   labels:
     app: grafana
 spec:
-  replicas: { { .Values.grafana.replicaCount } }
+  replicas: {{ .Values.grafana.replicaCount }}
   selector:
     matchLabels:
       app: grafana
@@ -19,7 +19,7 @@ spec:
         - name: grafana
           image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
           ports:
-            - containerPort: { { .Values.grafana.port } }
+            - containerPort: {{ .Values.grafana.port }}
           volumeMounts:
             - name: grafana-dashboard-vol
               mountPath: /var/lib/grafana/dashboards
@@ -30,13 +30,9 @@ spec:
           env:
             - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
               value:
-                {
-                  {
-                    .Values.grafana.env.GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH | quote,
-                  },
-                }
+                {{ .Values.grafana.env.GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH | quote }}
             - name: GF_PATHS_PROVISIONING
-              value: { { .Values.grafana.env.GF_PATHS_PROVISIONING | quote } }
+              value: {{ .Values.grafana.env.GF_PATHS_PROVISIONING | quote }}
       volumes:
         - name: grafana-dashboard-vol
           configMap:
