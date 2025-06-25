@@ -27,7 +27,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
   # Service subsets for A/B testing
   subsets:
   - name: v1
@@ -46,7 +46,14 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
+  subsets:
+  - name: v1
+    labels: 
+      version: v1
+  - name: v2
+    labels: 
+      version: v2
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -57,4 +64,11 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
+  subsets:
+  - name: v1
+    labels: 
+      version: v1
+  - name: v2
+    labels: 
+      version: v2

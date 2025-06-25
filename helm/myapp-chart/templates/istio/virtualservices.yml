@@ -2,8 +2,8 @@
 # 
 # A/B Testing Implementation:
 # The frontend virtual service below implements traffic splitting for A/B testing:
-# - 60% of traffic goes to version v1 (traditional button interface)
-# - 40% of traffic goes to version v2 (thumbs up/down feedback interface)
+# - 90% of traffic goes to version v1 (traditional button interface)
+# - 10% of traffic goes to version v2 (thumbs up/down feedback interface)
 #
 # Combined with sticky sessions (source IP hashing in DestinationRules), 
 # users will consistently see the same version throughout their session.
@@ -18,23 +18,37 @@ spec:
   gateways:
   - {{ .Release.Name }}-gateway
   http:
-  - match:
-    - uri:
-        prefix: /
-    route:
-    # A/B Testing: Traffic split between two frontend versions
-    - destination:
-        host: {{ .Release.Name }}-app-frontend-service
-        subset: v1  # Traditional button interface
-        port:
-          number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 60  # 60% of users see version 1
-    - destination:
-        host: {{ .Release.Name }}-app-frontend-service
-        subset: v2  # Thumbs up/down feedback interface
-        port:
-          number: {{ .Values.appFrontend.servicePort | default 80 }}
-      weight: 40  # 40% of users see version 2
+  # 1. Canary users: always get v2
+    - match:
+      - uri:
+          prefix: /
+        headers:
+          user-group:
+            exact: canary
+      route:
+        - destination:
+            host: {{ .Release.Name }}-app-frontend-service
+            subset: v2
+            port:
+              number: {{ .Values.appFrontend.servicePort | default 80 }}
+          weight: 100
+    # 2. All other users: A/B test (90% v1, 10% v2)
+    - match:
+      - uri:
+          prefix: /
+      route:
+        - destination:
+            host: {{ .Release.Name }}-app-frontend-service
+            subset: v1
+            port:
+              number: {{ .Values.appFrontend.servicePort | default 80 }}
+          weight: 90
+        - destination:
+            host: {{ .Release.Name }}-app-frontend-service
+            subset: v2
+            port:
+              number: {{ .Values.appFrontend.servicePort | default 80 }}
+          weight: 10
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -42,18 +56,57 @@ metadata:
   name: {{ .Release.Name }}-app-service-vs
 spec:
   hosts:
-  - "{{ .Values.ingress.host }}"
+    - "{{ .Values.ingress.host }}"
   gateways:
-  - {{ .Release.Name }}-gateway
+    - {{ .Release.Name }}-gateway
   http:
-  - match:
-    - uri:
-        prefix: /app/
-    route:
-    - destination:
-        host: {{ .Release.Name }}-app-service
-        port:
-          number: {{ .Values.appService.servicePort | default 80 }}
+    # Explicit label: v1
+    - match:
+        - uri:
+            prefix: /app/
+          headers:
+            label:
+              exact: v1
+      route:
+        - destination:
+            host: {{ .Release.Name }}-app-service
+            subset: v1
+            port:
+              number: {{ .Values.appService.servicePort | default 80 }}
+          weight: 100
+
+    # Explicit label: v2
+    - match:
+        - uri:
+            prefix: /app/
+          headers:
+            label:
+              exact: v2
+      route:
+        - destination:
+            host: {{ .Release.Name }}-app-service
+            subset: v2
+            port:
+              number: {{ .Values.appService.servicePort | default 80 }}
+          weight: 100
+
+    # Default case: 50/50 split
+    - match:
+        - uri:
+            prefix: /app/
+      route:
+        - destination:
+            host: {{ .Release.Name }}-app-service
+            subset: v1
+            port:
+              number: {{ .Values.appService.servicePort | default 80 }}
+          weight: 50
+        - destination:
+            host: {{ .Release.Name }}-app-service
+            subset: v2
+            port:
+              number: {{ .Values.appService.servicePort | default 80 }}
+          weight: 50
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -61,18 +114,57 @@ metadata:
   name: {{ .Release.Name }}-model-service-vs
 spec:
   hosts:
-  - "{{ .Values.ingress.host }}"
+    - "{{ .Values.ingress.host }}"
   gateways:
-  - {{ .Release.Name }}-gateway
+    - {{ .Release.Name }}-gateway
   http:
-  - match:
-    - uri:
-        prefix: /model/
-    route:
-    - destination:
-        host: {{ .Release.Name }}-model-service
-        port:
-          number: {{ .Values.modelService.servicePort | default 80 }}
+    # Explicit label: v1
+    - match:
+        - uri:
+            prefix: /model/
+          headers:
+            label:
+              exact: v1
+      route:
+        - destination:
+            host: {{ .Release.Name }}-model-service
+            subset: v1
+            port:
+              number: {{ .Values.modelService.servicePort | default 80 }}
+          weight: 100
+
+    # Explicit label: v2
+    - match:
+        - uri:
+            prefix: /model/
+          headers:
+            label:
+              exact: v2
+      route:
+        - destination:
+            host: {{ .Release.Name }}-model-service
+            subset: v2
+            port:
+              number: {{ .Values.modelService.servicePort | default 80 }}
+          weight: 100
+
+    # Default case: 50/50 split
+    - match:
+        - uri:
+            prefix: /model/
+      route:
+        - destination:
+            host: {{ .Release.Name }}-model-service
+            subset: v1
+            port:
+              number: {{ .Values.modelService.servicePort | default 80 }}
+          weight: 50
+        - destination:
+            host: {{ .Release.Name }}-model-service
+            subset: v2
+            port:
+              number: {{ .Values.modelService.servicePort | default 80 }}
+          weight: 50
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
