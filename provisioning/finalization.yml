@@ -398,7 +398,6 @@
       ansible.builtin.command: helm repo update
       changed_when: false
 
-
     - name: Deploy Prometheus stack with Helm
       become_user: vagrant
       ansible.builtin.command: >

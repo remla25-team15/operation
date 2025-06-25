@@ -1,0 +1,220 @@
+# Default values for myapp-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Chart name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Replica count for default deployment
+replicaCount: 1
+
+# Container image configuration
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: ""
+
+# Pull secrets for private images
+imagePullSecrets: []
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+# Pod-level security context
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+# Container-level security context
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Liveness and readiness probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Kubernetes service configuration
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "app.local" # will default to {{ .Release.Name }}.app.local if left empty
+
+# Resource requests and limits
+resources:
+  {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volume configuration
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+# Node scheduling
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Application-specific configurations
+
+appFrontend:
+  port: 3000
+  replicaCount: 2
+  image:
+    repository: ghcr.io/remla25-team15/app-frontend
+  hostIP: "0.0.0.0"
+  configMapName: "app-frontend-config"
+  appServiceHost: "app-service"
+  servicePort: 80
+  versions:
+    v1:
+      tag: "v3.3.1"
+    v2:
+      tag: "v3.3.1-feat-ui-icon"
+
+appService:
+  port: 5000
+  replicaCount: 3
+  image:
+    repository: ghcr.io/remla25-team15/app-service
+    tag: "v2.0.0"
+  hostIP: "0.0.0.0"
+  host: "app-service"
+  servicePort: 80
+
+modelService:
+  port: 5001
+  replicaCount: 3
+  image:
+    repository: ghcr.io/remla25-team15/model-service
+    tag: "v2.0.0"
+  hostIP: "0.0.0.0"
+  modelVersion: v1.1.0
+  cvFileName: c1_BoW_Sentiment_Model.pkl
+  modelFileName: c2_Classifier_Sentiment_Model.pkl
+  secrets:
+    resource_base_url: aHR0cHM6Ly9naXRodWIuY29tL3JlbWxhMjUtdGVhbTE1L21vZGVsLXRyYWluaW5nL3JlbGVhc2VzL2Rvd25sb2FkLw==
+  host: "model-service"
+  servicePort: 80
+
+prometheus:
+  namespace: "monitoring"
+  slack_channel: "new-channel"
+  api_url: "example"
+  release: myprom
+
+serviceMonitor:
+  targetNamespace: default
+  targetApp: app-frontend-serv
+  interval: 1s
+  port: web
+  path: /metrics
+
+prometheusRuleRequests:
+  name: frontend-request-alerts
+  groupName: frontend.rules
+  alertName: HighFrontendRequestRate
+  expr: rate(frontend_prediction_requests_total[10s]) > 1
+  severity: warning
+  summary: High number of frontend prediction requests
+  description: The frontend_prediction_requests_total counter has exceeded 300.
+
+grafana:
+  host: grafana.local
+  port: 3000 # run in different pods so does not conflict with app frontend
+  replicaCount: 1
+  image:
+    repository: grafana/grafana
+    tag: "10.0.0"
+  servicePort: 80
+  env:
+    GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/app-custom-metrics.json
+    GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+
+# Environment variables shared across services
+env:
+  FLASK_ENV: "production"
+
+# Rate limiting configuration
+# This implements per-user rate limiting using Envoy filters for individual users
+# Rate limiting is based on source IP address with separate buckets per user (similar to sticky sessions)
+rateLimit:
+  enabled: true
+  # Requests per minute allowed per individual user (separate bucket per source IP)
+  requestsPerMinute: 200
+
+alertmanager:
+  namespace: monitoring
+  smtp_smarthost: smtp.gmail.com:587
+  smtp_from: remlateam15@gmail.com
+  smtp_to: remlateam15@gmail.com
+  alertmanagerSpec:
+    configSecret: alertmanager-config
+    env:
+      - name: SMTP_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_password
+
+
+prometheusTooManyUsersRule:
+  name: TooManyActiveUsers
+  metric: frontend_active_users_total
+  threshold: 15
+  for: 1m
+  labels:
+    severity: warning
+  annotations:
+    summary: Too many users active on frontend
+    description: The number of active frontend users is {{ $value }}, which exceeds the threshold.

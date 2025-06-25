@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-grafana-datasource-config
+  name: grafana-datasource-config
   labels:
     app: grafana
 data:
@@ -14,3 +14,4 @@ data:
         access: proxy
         isDefault: true
         editable: true
+

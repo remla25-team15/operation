@@ -11,6 +11,4 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "{{ .Values.ingress.host }}"
-    - "kiali.local"
-    - "prometheus.local"
+    - "{{ .Release.Name }}.{{ .Values.ingress.host }}"

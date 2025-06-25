@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-grafana-deployment
+  name: grafana-deployment
   labels:
     app: grafana
 spec:
@@ -29,16 +29,17 @@ spec:
               mountPath: /etc/grafana/provisioning/datasources
           env:
             - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
-              value: {{ .Values.grafana.env.GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH | quote }}
+              value:
+                {{ .Values.grafana.env.GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH | quote }}
             - name: GF_PATHS_PROVISIONING
               value: {{ .Values.grafana.env.GF_PATHS_PROVISIONING | quote }}
       volumes:
         - name: grafana-dashboard-vol
           configMap:
-            name: {{ .Release.Name }}-grafana-dashboard-config
+            name: grafana-dashboard-config
         - name: grafana-provisioning
           configMap:
-            name: {{ .Release.Name }}-grafana-dashboard-config
+            name: grafana-dashboard-config
         - name: grafana-datasource-vol
           configMap:
-            name: {{ .Release.Name }}-grafana-datasource-config
+            name: grafana-datasource-config

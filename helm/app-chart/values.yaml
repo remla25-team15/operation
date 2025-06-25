@@ -113,9 +113,9 @@ appFrontend:
   servicePort: 80
   versions:
     v1:
-      tag: "v3.3.1"
+      tag: "v3.3.6"
     v2:
-      tag: "v3.3.1-feat-ui-icon"
+      tag: "v3.3.7-alpha.feature-feedback-icons.1"
 
 appService:
   port: 5000
@@ -167,14 +167,35 @@ serviceMonitor:
   port: web
   path: /metrics
 
-prometheusRuleRequests:
-  name: frontend-request-alerts
-  groupName: frontend.rules
-  alertName: HighFrontendRequestRate
-  expr: rate(frontend_prediction_requests_total[10s]) > 1
-  severity: warning
-  summary: High number of frontend prediction requests
-  description: The frontend_prediction_requests_total counter has exceeded 300.
+prometheusTooManyUsersRule:
+  name: TooManyActiveUsers
+  metric: frontend_active_users_total
+  threshold: 15
+  for: 1m
+  labels:
+    severity: warning
+  annotations:
+    summary: Too many users active on frontend
+    description: The number of active frontend users is {{ $value }}, which exceeds the threshold.
+
+alertmanager:
+  namespace: monitoring
+  smtp_smarthost: smtp.gmail.com:587
+  smtp_from: remlateam15@gmail.com
+  smtp_to: remlateam15@gmail.com
+  alertmanagerSpec:
+    configSecret: alertmanager-config
+    env:
+      - name: SMTP_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_password
 
 grafana:
   host: grafana.local

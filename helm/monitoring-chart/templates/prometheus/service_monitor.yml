@@ -1,9 +1,10 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ .Release.Name }}-servicemonitor
+  name: servicemonitor
   namespace: {{ .Values.prometheus.namespace }}
   labels:
+    app: {{ $.Release.Name }}-servicemonitor
     release: {{ .Values.prometheus.release }}
 spec:
   namespaceSelector:
@@ -13,6 +14,7 @@ spec:
     matchLabels:
       app: {{ .Values.serviceMonitor.targetApp }}
   endpoints:
-  - interval: {{ .Values.serviceMonitor.interval }}
-    port: {{ .Values.serviceMonitor.port }}
-    path: {{ .Values.serviceMonitor.path }}
+    - interval: {{ .Values.serviceMonitor.interval }}
+      port: {{ .Values.serviceMonitor.port }}
+      path: {{ .Values.serviceMonitor.path }}
+
