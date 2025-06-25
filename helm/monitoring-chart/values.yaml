@@ -187,3 +187,34 @@ rateLimit:
   enabled: true
   # Requests per minute allowed per individual user (separate bucket per source IP)
   requestsPerMinute: 200
+
+alertmanager:
+  namespace: monitoring
+  smtp_smarthost: smtp.gmail.com:587
+  smtp_from: remlateam15@gmail.com
+  smtp_to: remlateam15@gmail.com
+  alertmanagerSpec:
+    configSecret: alertmanager-config
+    env:
+      - name: SMTP_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_username
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: alertmanager-smtp-secret
+            key: smtp_password
+
+
+prometheusTooManyUsersRule:
+  name: TooManyActiveUsers
+  metric: frontend_active_users_total
+  threshold: 15
+  for: 1m
+  labels:
+    severity: warning
+  annotations:
+    summary: Too many users active on frontend
+    description: The number of active frontend users is {{ $value }}, which exceeds the threshold.
