@@ -45,8 +45,8 @@ The next invocations should be faster.
 
 ```zsh
 Current relevant entries in /etc/hosts after script execution:
-192.168.56.80 app.local kiali.local prometheus.local
-192.168.56.81 dashboard.local grafana.local
+192.168.56.80 myapp.app.local kiali.local prometheus.local grafana.local
+192.168.56.81 dashboard.local
 ```
 
 > Your /etc/hosts should have these entries (the IP addresses could be different). The `scripts/run-all.sh` script invokes `scripts/update-hosts.sh` script which
@@ -76,13 +76,18 @@ The following command should help with it:
 If you want to install the helm chart manually, you need to enable Istio's automatic sidecar injection:
 
 ```zsh
-kubectl label namespace my-app istio-injection=enabled
+kubectl label ns default istio-injection=enabled
 ```
 
-To install a helm chart, you can run:
+The helm charts are separated into istio-config charts, monitoring charts and application charts.
+This allows us to create multiple releases of the same application while avoiding duplication of the monitoring tools.
+
+To install the helm charts, you can run:
 
 ```zsh
-helm install myapp ./helm/myapp-chart
+helm install monitoring ./helm/monitoring-chart
+helm install istio ./helm/istio-config-chart
+helm install myapp ./helm/app-chart
 ```
 
 To see all helm charts run the following:
@@ -96,6 +101,9 @@ To switch between charts run:
 ```zsh
 helm status <chart-name>
 ```
+
+> Note: If you wish to test multiple releases, you can do so by running the `helm install <app-name> ./helm/app-chart` but
+> then you need to update the /etc/hosts file with the name (`<app-name>`) of the new release, e.g. myapp2.app.local on the same line as myapp.app.local
 
 If you're running it for the first time, the model-service will download the models to cache them locally.
 It takes a while so you can go grab a cup of coffee or something... :coffee:
@@ -225,11 +233,12 @@ The metrics are also accessible at [http://app.local/metrics](http://app.local/m
 
 ### Alerts
 
-In the application we have a custom PrometheusRule  - `TooManyActiveUsers` located in `helm/myapp-chart/prometheus/custom_alert_rules.yml`.
+In the application we have a custom PrometheusRule - `TooManyActiveUsers` located in `helm/myapp-chart/prometheus/custom_alert_rules.yml`.
 It triggers once we have more than `threshold` active users, currently it is 15 but can be changed in helm values.
 
 To receive an email notification you need to create a secret with your credentials after application start up.
 You can run:
+
 ```bash
 kubectl create secret generic alertmanager-smtp-secret \
   --from-literal=smtp_username=fake-user@example.com \
@@ -238,16 +247,20 @@ kubectl create secret generic alertmanager-smtp-secret \
 ```
 
 After this you need to upgrade your releases, so run:
+
 ```bash
 helm upgrade --install myapp helm/myapp-chart/ -f helm/myapp-chart/values.yaml
 helm upgrade --install myprom prometheus-community/kube-prometheus-stack -n monitoring -f helm/myapp-chart/values.yaml
 ```
 
 To check that your credentials were correctly injected into alert manager you can run:
+
 ```bash
 kubectl exec -n monitoring -it alertmanager-myprom-kube-prometheus-sta-alertmanager-0 -- cat /etc/alertmanager/config_out/alertmanager.env.yaml
 ```
+
 Replace `alertmanager-myprom-kube-prometheus-sta-alertmanager-0` with the name of your alert manager pod.
+
 # Grafana Dashboard: Custom Metrics Visualization
 
 To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin). After you ran the steps from [the setup](#How-to-run?)
