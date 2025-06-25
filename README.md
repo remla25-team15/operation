@@ -79,14 +79,13 @@ If you want to install the helm chart manually, you need to enable Istio's autom
 kubectl label ns default istio-injection=enabled
 ```
 
-The helm charts are separated into istio-config charts, monitoring charts and application charts.
+The helm charts are separated into monitoring charts and application charts.
 This allows us to create multiple releases of the same application while avoiding duplication of the monitoring tools.
 
 To install the helm charts, you can run:
 
 ```zsh
 helm install monitoring ./helm/monitoring-chart
-helm install istio ./helm/istio-config-chart
 helm install myapp ./helm/app-chart
 ```
 

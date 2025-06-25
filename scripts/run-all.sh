@@ -63,12 +63,6 @@ helm upgrade --install monitoring ./helm/monitoring-chart || {
     exit 1
 }
 
-echo -e "${BLUE}Deploying istio config with Helm...${NC}"
-helm upgrade --install istio ./helm/istio-config-chart || {
-    echo -e "${RED}Helm deployment failed. Exiting.${NC}"
-    exit 1
-}
-
 echo -e "${BLUE}Deploying application with Helm...${NC}"
 helm upgrade --install myapp ./helm/app-chart || {
     echo -e "${RED}Helm deployment failed. Exiting.${NC}"

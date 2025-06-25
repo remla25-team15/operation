@@ -7,7 +7,7 @@ using Istio.
 
 ## Cluster Setup Overview
 
-![](images/cluster-overview.png)
+<img src="images/cluster-overview.png" alt="Cluster Overview" style="width: 50%;">
 
 Our current Kubernetes cluster consists of one controller VM (forming the control
 plane) and two worker node VMs (forming the data plane). The environment is
@@ -44,7 +44,7 @@ Istio.
 | `app-frontend`  | The frontend UI exposed via Istio Gateway                              |
 | `app-service`   | A backend microservice for communication between app and model-service |
 | `model-service` | A model-serving component that handles ML inference                    |
-| `grafana`       | Metrics dashboard, exposed via a separate ingress                      |
+| `grafana`       | Metrics dashboard                                                      |
 | `prometheus`    | Metrics collection, integrated with Istio and Grafana                  |
 | `istio`         | Manages traffic routing and mesh policy                                |
 | `kiali`         | Istio observability dashboard, exposed via Istio Gateway               |
@@ -52,7 +52,7 @@ Istio.
 
 # Architecture Visualization
 
-![architecture](images/kiali-architecture-1.png)
+![architecture](images/kiali-architecture-final.png)
 The application consists of three core services: `app-frontend`, `app-service`, and
 `model-service`, each deployed as a Kubernetes Deployment with an injected Istio
 sidecar. Traffic flows from the internet through the Istio Ingress Gateway to
@@ -62,6 +62,56 @@ internally with `app-service`, which in turn calls `model-service`. Monitoring a
 observability components such as Prometheus, Grafana, and Kiali are deployed in
 parallel but operate outside the main request path.
 
+# Helm Chart Organization
+
+To manage our Kubernetes and Istio deployment, we use a modular Helm-based
+approach. The deployment is split into two Helm charts to separate application
+logic from observability and monitoring concerns.
+
+## Application Chart (`app-chart`)
+
+The `app-chart` contains all components responsible for serving user-facing
+functionality. This includes:
+
+- **Microservice Deployments**: `app-frontend`, `app-service`, and
+  `model-service`, each deployed with Istio sidecars and versioned to enable
+  controlled rollouts.
+- **Service Mesh Configuration**: The Istio ingress gateway for the
+  application, as well as all routing and traffic policies (e.g.,
+  `VirtualService` and `DestinationRule`) that manage dynamic request flow
+  between services and across versions.
+
+This chart defines the main serving path of the application, from the entry
+gateway to the model-serving backend. It encapsulates all logic needed to
+route, observe, and control traffic inside the mesh.
+
+## Monitoring Chart (`monitoring-chart`)
+
+The `monitoring-chart` includes all observability and diagnostics tooling.
+These components operate independently of the core serving path and are
+responsible for telemetry collection and visualization:
+
+- **Prometheus**: Collects metrics from the mesh and the services.
+- **Grafana**: Dashboards for service-level and system-level monitoring.
+- **Kiali**: Visualizes the Istio service mesh and traffic flows.
+- **Monitoring Gateway**: A dedicated gateway for exposing observability tools.
+
+This separation ensures that monitoring infrastructure can evolve independently
+of the application logic, and promotes clarity between runtime behavior and
+observability concerns.
+
+### Role in the Deployment Architecture
+
+Together, these two charts describe the full deployment state of the system.
+The `app-chart` defines **what is being served** and **how traffic flows**,
+while the `monitoring-chart` defines **how that traffic is measured and
+observed**.
+
+This Helm-based structure allows independent development, experimentation, and
+scaling of both application features and monitoring infrastructure. It also
+aligns with Istio’s design philosophy by treating traffic control and
+observability as orthogonal, yet connected, layers in the deployment.
+
 # Traffic Flow & Runtime Architecture
 
 ## 1. Ingress and Entry into the Mesh
@@ -70,13 +120,13 @@ External requests enter the system via the `istio-ingressgateway`, a component
 of the Istio control plane running in the `istio-system` namespace. It acts as
 the entry point into the service mesh.
 
-The gateway is configured [here](../helm/myapp-chart/templates/istio/gateway.yml).
+The gateway is configured in the [app-chart/tempaltes/istio/gateway.yml](../helm/app-chart/templates/istio/gateway.yml).
 
 Traffic is routed based on Istio `VirtualServices`. Specifically:
 
 Requests to the frontend application are routed to the service frontend-service
 based on host/path rules defined in
-[istio/virtualservices.yml](../helm/myapp-chart/templates/istio/virtualservices.yml)
+[istio/virtualservices.yml](../helm/app-chart/templates/istio/virtualservices.yml)
 
 ## 2. Frontend Application (app-frontend)
 
@@ -92,7 +142,7 @@ following:
 
 - **VirtualService**: manages how traffic is split between `v1` and `v2`.
 - **DestinationRule**: defines subsets (`v1`, `v2`) and their associated
-  policies. Configuration can be found in [istio/destinationrules.yml](../helm/myapp-chart/templates/istio/destinationrules.yml).
+  policies. Configuration can be found in [istio/destinationrules.yml](../helm/app-chart/templates/istio/destinationrules.yml).
 
 Each version (v1 and v2) runs in its own pod, and each pod contains:
 
@@ -105,9 +155,9 @@ In addition to weighted traffic splitting, the `VirtualService` supports canary 
 - All other requests are subject to a percentage-based split (e.g., 90% to v1, 10% to v2).
 - This enables stable UI experimentation such as A/B testing: version v1 shows traditional feedback buttons, while version v2 presents thumbs-up/down icons.
 
-###### Deployment Manifest: [templates/app-frontend/deployment.yml](../helm/myapp-chart/templates/app-frontend/deployment.yml)
+###### Deployment Manifest: [templates/app-frontend/deployment.yml](../helm/app-chart/templates/app-frontend/deployment.yml)
 
-###### Service Manifest: [templates/app-frontend/service.yml](../helm/myapp-chart/templates/app-frontend/service.yml)
+###### Service Manifest: [templates/app-frontend/service.yml](../helm/app-chart/templates/app-frontend/service.yml)
 
 ## 3. Backend Application (app-service)
 
@@ -124,9 +174,9 @@ The Istio `VirtualService` for this service supports version routing using a cus
 
 This ensures version consistency between frontend and backend layers during canary rollout or user-group-specific testing.
 
-###### Deployment Manifest: [templates/app-service/deployment.yml](../helm/myapp-chart/templates/app-service/deployment.yml)
+###### Deployment Manifest: [templates/app-service/deployment.yml](../helm/app-chart/templates/app-service/deployment.yml)
 
-###### Service Manifest: [templates/app-service/service.yml](../helm/myapp-chart/templates/app-service/service.yml)
+###### Service Manifest: [templates/app-service/service.yml](../helm/app-chart/templates/app-service/service.yml)
 
 ## 4. Model Service (model-service)
 
@@ -143,18 +193,25 @@ Just like `app-service`, `model-service` honors the `label` header for routing:
 
 This allows tightly controlled testing of updated inference logic alongside stable releases.
 
-###### Deployment Manifest: [templates/model-service/deployment.yml](../helm/myapp-chart/templates/model-service/deployment.yml)
+###### Deployment Manifest: [templates/model-service/deployment.yml](../helm/app-chart/templates/model-service/deployment.yml)
 
-###### Service Manifest: [templates/model-service/service.yml](../helm/myapp-chart/templates/model-service/service.yml)
+###### Service Manifest: [templates/model-service/service.yml](../helm/app-chart/templates/model-service/service.yml)
 
-## 5. Grafana and Passthrough Traffic
+## 5. Observability and Monitoring Traffic
 
-`grafana` is deployed as a monitoring tool but is not routed via the Istio
-ingress gateway. Instead, it communicates directly with external services using
-a `PassthroughCluster`, bypassing Istio's traffic management rules.
+`grafana` is deployed as part of the observability stack and is exposed
+externally via a dedicated `monitoring-gateway`. This gateway is configured
+through the `monitoring-chart` and is separate from the main application gateway.
 
-Its pod does not handle mesh traffic routing and is accessed through a separate
-ingress controller, not defined in Istio manifests.
+Access to Grafana and Kiali is managed using Istio `Gateway` and `VirtualService` resources
+defined within the monitoring chart. These configurations allow external users
+to reach the Grafana dashboard and the Kiali UI through the monitoring ingress without
+overlapping with application-facing traffic.
+
+Grafana operates alongside other monitoring tools such as Prometheus and Kiali,
+and provides dashboards for system metrics, service performance, and mesh
+telemetry. These tools are not involved in the core application request flow
+but are essential for diagnostics, observability, and system health insights.
 
 # Dynamic Routing
 

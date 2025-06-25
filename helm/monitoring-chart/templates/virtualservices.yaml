@@ -37,3 +37,23 @@ spec:
             host: monitoring-grafana.default.svc.cluster.local
             port:
               number: {{ .Values.grafana.servicePort | default 80 }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kiali-vs
+  namespace: istio-system
+spec:
+  hosts:
+    - "kiali.local"
+  gateways:
+    - default/monitoring-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: kiali.istio-system.svc.cluster.local
+            port:
+              number: 20001
