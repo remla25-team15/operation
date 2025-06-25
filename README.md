@@ -181,6 +181,23 @@ Using headers for routing ensures users consistently interact with the correct
 version of both frontend and backend services during testing, canary rollout,
 or A/B experiments.
 
+### Sticky Sessions with Consistent Hashing on Custom Headers
+
+To ensure users maintain a consistent experience during canary or A/B tests,
+Istio's load balancer uses consistent hashing on a custom header `x-user`.
+This means requests from the same user (identified by the header value) are
+routed to the same service version throughout their session.
+
+You can test sticky sessions by repeatedly sending requests with the same
+header:
+
+```zsh
+count=0; while [ $count -lt 8 ]; do
+  curl -s -H "x-user: omar" http://app.local | grep -A5 "Prediction"
+  ((count++))
+done
+```
+
 ## Monitoring
 
 ### Prometheus

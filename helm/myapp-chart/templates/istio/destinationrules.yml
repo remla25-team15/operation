@@ -27,7 +27,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
   # Service subsets for A/B testing
   subsets:
   - name: v1
@@ -46,7 +46,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
   subsets:
   - name: v1
     labels: 
@@ -64,7 +64,7 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        useSourceIp: true
+        httpHeaderName: x-user
   subsets:
   - name: v1
     labels: 
