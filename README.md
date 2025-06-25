@@ -193,7 +193,7 @@ header:
 
 ```zsh
 count=0; while [ $count -lt 8 ]; do
-  curl -s -H "x-user: omar" http://app.local | grep -A5 "Prediction"
+  curl -s -H "x-user: bob" http://app.local | grep -A5 "Prediction"
   ((count++))
 done
 ```
