@@ -225,9 +225,29 @@ The metrics are also accessible at [http://app.local/metrics](http://app.local/m
 
 ### Alerts
 
-PrometheusRule - "HighFrontendRequestRate" exists and you can check that it can be triggered in Prometheus UI [http://localhost:9090](http://localhost:9090).
-The alert notification functionality is still under development.
+In the application we have a custom PrometheusRule  - `TooManyActiveUsers` located in `helm/myapp-chart/prometheus/custom_alert_rules.yml`.
+It triggers once we have more than `threshold` active users, currently it is 15 but can be changed in helm values.
 
+To receive an email notification you need to create a secret with your credentials after application start up.
+You can run:
+```bash
+kubectl create secret generic alertmanager-smtp-secret \
+  --from-literal=smtp_username=fake-user@example.com \
+  --from-literal=smtp_password=fake-password \
+  -n monitoring
+```
+
+After this you need to upgrade your releases, so run:
+```bash
+helm upgrade --install myapp helm/myapp-chart/ -f helm/myapp-chart/values.yaml
+helm upgrade --install myprom prometheus-community/kube-prometheus-stack -n monitoring -f helm/myapp-chart/values.yaml
+```
+
+To check that your credentials were correctly injected into alert manager you can run:
+```bash
+kubectl exec -n monitoring -it alertmanager-myprom-kube-prometheus-sta-alertmanager-0 -- cat /etc/alertmanager/config_out/alertmanager.env.yaml
+```
+Replace `alertmanager-myprom-kube-prometheus-sta-alertmanager-0` with the name of your alert manager pod.
 # Grafana Dashboard: Custom Metrics Visualization
 
 To access the dashboard go to: Grafana URL: http://grafana.local/ (Credentials: admin / admin). After you ran the steps from [the setup](#How-to-run?)
