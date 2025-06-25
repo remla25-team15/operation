@@ -4,6 +4,7 @@ metadata:
   name: servicemonitor
   namespace: {{ .Values.prometheus.namespace }}
   labels:
+    app: {{ $.Release.Name }}-servicemonitor
     release: {{ .Values.prometheus.release }}
 spec:
   namespaceSelector:
