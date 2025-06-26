@@ -189,5 +189,5 @@ Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A
 
 --Aiman--
 
-- created PR:
-- approved PR:
+- created PR: https://github.com/remla25-team15/lib-version/pull/4
+- approved PR: https://github.com/remla25-team15/operation/pull/54
