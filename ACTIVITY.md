@@ -1,10 +1,14 @@
 # Week 2:
 
 -- Alessandro: --
-Created PR: https://github.com/remla25-team15/app-frontend/pull/2 (related to A1)\
+
+Created PR: https://github.com/remla25-team15/app-frontend/pull/2 (related to A1)
+Created PR: https://github.com/remla25-team15/app-frontend/pull/7 (related to A1)
+
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1)
 
 -- Dmytro: --
+
 Created PR: https://github.com/remla25-team15/model-training/pull/3 (related to A1) \
 Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A1)
 
