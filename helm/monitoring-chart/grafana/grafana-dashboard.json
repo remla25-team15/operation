@@ -252,7 +252,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(increase(frontend_feedback_rating_total[1h])) by (version)\n/\nsum(increase(frontend_prediction_requests_total[1h])) by (version)",
+          "expr": "sum by (frontend_version) (\n  label_replace(increase(frontend_feedback_rating_total[1h]), \"frontend_version\", \"$1\", \"pod\", \"myapp-app-frontend-(v[0-9]+)-deployment.*\")\n) / sum by (frontend_version) (\n  label_replace(increase(frontend_prediction_requests_total[1h]), \"frontend_version\", \"$1\", \"pod\", \"myapp-app-frontend-(v[0-9]+)-deployment.*\")\n) ",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -347,7 +347,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(increase(frontend_feedback_rating_total[1h])) by (version)\n/\nsum(increase(frontend_prediction_requests_total[1h])) by (version)",
+          "expr": "sum by (frontend_version) (\n  label_replace(increase(frontend_feedback_rating_total[1h]), \"frontend_version\", \"$1\", \"pod\", \"myapp-app-frontend-(v[0-9]+)-deployment.*\")\n) / sum by (frontend_version) (\n  label_replace(increase(frontend_prediction_requests_total[1h]), \"frontend_version\", \"$1\", \"pod\", \"myapp-app-frontend-(v[0-9]+)-deployment.*\")\n) ",
           "instant": false,
           "range": true,
           "refId": "A"
@@ -833,8 +833,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -892,8 +891,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -951,8 +949,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1064,8 +1061,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1156,8 +1152,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1215,8 +1210,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1274,8 +1268,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -1338,8 +1331,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1452,4 +1444,3 @@
   "version": 1,
   "weekStart": ""
 }
-
