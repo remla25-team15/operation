@@ -166,8 +166,9 @@ Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A
 
 -- Dmytro: --
 
-- created PR:
-- approved PR:
+- created PR: https://github.com/remla25-team15/operation/pull/57 (related to A3)
+- created PR: https://github.com/remla25-team15/operation/pull/53 (related to A3)
+- approved PR: https://github.com/remla25-team15/operation/pull/55 (related to A3/A5)
 
 -- Shreyas: --
 
