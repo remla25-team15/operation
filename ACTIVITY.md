@@ -172,7 +172,10 @@ Approved PR: https://github.com/remla25-team15/app-frontend/pull/4 (related to A
 -- Shreyas: --
 
 - created PR: https://github.com/remla25-team15/app-service/pull/7 (related to A1)
+- created PR: https://github.com/remla25-team15/operation/pull/55 (related to A3)
+- created PR: https://github.com/remla25-team15/operation/pull/54 (related to A5)
 - approved PR: https://github.com/remla25-team15/operation/pull/49 (related to A5)
+- approved PR: https://github.com/remla25-team15/operation/pull/57 (related to A3)
 
 -- Liwia: --
 
